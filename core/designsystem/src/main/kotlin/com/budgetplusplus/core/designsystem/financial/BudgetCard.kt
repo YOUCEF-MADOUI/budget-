@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -19,6 +18,7 @@ import androidx.compose.ui.semantics.semantics
 import com.budgetplusplus.core.designsystem.R
 import com.budgetplusplus.core.designsystem.components.BudgetBadge
 import com.budgetplusplus.core.designsystem.components.BudgetCard
+import com.budgetplusplus.core.designsystem.theme.financialColors
 import com.budgetplusplus.core.designsystem.tokens.BudgetSizes
 import com.budgetplusplus.core.designsystem.tokens.BudgetSpacing
 import com.budgetplusplus.core.designsystem.util.MoneyFormatter
