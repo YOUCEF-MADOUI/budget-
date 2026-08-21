@@ -3,6 +3,7 @@ package com.budgetplusplus.feature.dashboard
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -18,6 +19,9 @@ import androidx.compose.ui.unit.dp
 fun HomePlaceholderScreen(
     onBackClick: () -> Unit,
     onDesignSystemClick: () -> Unit,
+    onAccountsClick: () -> Unit,
+    onCategoriesClick: () -> Unit,
+    onTransactionsClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -38,6 +42,9 @@ fun HomePlaceholderScreen(
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        Button(onClick = onAccountsClick, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.home_accounts)) }
+        Button(onClick = onCategoriesClick, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.home_categories)) }
+        Button(onClick = onTransactionsClick, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.home_transactions)) }
         Button(onClick = onDesignSystemClick) {
             Text(stringResource(R.string.technical_open_design_system))
         }

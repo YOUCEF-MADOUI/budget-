@@ -1,0 +1,28 @@
+package com.budgetplusplus.database.dao
+
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.Query
+import com.budgetplusplus.database.entity.FinanceTransactionEntity
+import kotlinx.coroutines.flow.Flow
+
+data class TransactionDetails(
+    val id: String, val type: String, val amountMinor: Long, val currencyCode: String,
+    val accountId: String, val accountName: String, val destinationAccountId: String?,
+    val destinationAccountName: String?, val categoryId: String?, val categoryNameKey: String?,
+    val categoryCustomName: String?, val occurredAt: Long, val description: String,
+)
+
+@Dao
+interface TransactionDao {
+    @Query("""SELECT t.id, t.type, t.amount_minor AS amountMinor, t.currency_code AS currencyCode,
+      t.account_id AS accountId, a.name AS accountName, t.destination_account_id AS destinationAccountId,
+      da.name AS destinationAccountName, t.category_id AS categoryId, c.name_key AS categoryNameKey,
+      c.custom_name AS categoryCustomName, t.occurred_at AS occurredAt, t.description
+      FROM finance_transactions t JOIN accounts a ON a.id = t.account_id
+      LEFT JOIN accounts da ON da.id = t.destination_account_id LEFT JOIN categories c ON c.id = t.category_id
+      WHERE t.deleted_at IS NULL ORDER BY t.occurred_at DESC""")
+    fun observeAll(): Flow<List<TransactionDetails>>
+    @Insert suspend fun insert(entity: FinanceTransactionEntity)
+    @Query("UPDATE finance_transactions SET deleted_at = :now, updated_at = :now WHERE id = :id") suspend fun softDelete(id: String, now: Long)
+}

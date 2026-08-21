@@ -3,4 +3,7 @@
     <string name="technical_home_message">La navigation Compose fonctionne. Le véritable tableau de bord sera construit pendant la Phase 8.</string>
     <string name="technical_back">Retour</string>
     <string name="technical_open_design_system">Ouvrir le Design System</string>
+    <string name="home_accounts">Comptes</string>
+    <string name="home_categories">Catégories</string>
+    <string name="home_transactions">Opérations</string>
 </resources>

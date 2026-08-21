@@ -7,6 +7,9 @@ import androidx.navigation.compose.rememberNavController
 import com.budgetplusplus.app.navigation.AppDestination
 import com.budgetplusplus.core.designsystem.demo.DesignSystemDemoScreen
 import com.budgetplusplus.feature.dashboard.HomePlaceholderScreen
+import com.budgetplusplus.feature.accounts.AccountsScreen
+import com.budgetplusplus.feature.categories.CategoriesScreen
+import com.budgetplusplus.feature.transactions.TransactionsScreen
 import com.budgetplusplus.feature.onboarding.TechnicalWelcomeScreen
 
 @Composable
@@ -30,8 +33,14 @@ fun BudgetPlusPlusApp() {
             HomePlaceholderScreen(
                 onBackClick = navController::navigateUp,
                 onDesignSystemClick = { navController.navigate(AppDestination.DesignSystem.route) },
+                onAccountsClick = { navController.navigate(AppDestination.Accounts.route) },
+                onCategoriesClick = { navController.navigate(AppDestination.Categories.route) },
+                onTransactionsClick = { navController.navigate(AppDestination.Transactions.route) },
             )
         }
+        composable(AppDestination.Accounts.route) { AccountsScreen(onBack = navController::navigateUp) }
+        composable(AppDestination.Categories.route) { CategoriesScreen(onBack = navController::navigateUp) }
+        composable(AppDestination.Transactions.route) { TransactionsScreen(onBack = navController::navigateUp) }
         composable(AppDestination.DesignSystem.route) {
             DesignSystemDemoScreen(onBackClick = navController::navigateUp)
         }

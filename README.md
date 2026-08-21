@@ -8,9 +8,10 @@ Budget++ est une application Android native de gestion budgétaire personnelle, 
 
 - **Phase 1 — Conception :** terminée. Le [dossier de conception fonctionnelle et technique](docs/CONCEPTION.md) reste la source de vérité.
 - **Phase 2 — Fondation Android :** terminée et validée par la CI.
-- **Phase 3 — Design System :** implémentée avec thèmes clair/sombre, tokens sémantiques, composants génériques et financiers, previews RTL/accessibilité et catalogue interne.
+- **Phase 3 — Design System :** terminée.
+- **Phase 4 — Room et premières fonctionnalités :** base locale, comptes, catégories, dépenses, revenus et transferts implémentés en français, anglais et arabe.
 
-Documentation : [Design System Budget++](docs/PHASE_3_DESIGN_SYSTEM.md). Les fonctionnalités financières métier ne sont volontairement pas encore implémentées.
+Documentation : [Design System Budget++](docs/PHASE_3_DESIGN_SYSTEM.md) · [Base Room et premières fonctionnalités](docs/PHASE_4_FIRST_FEATURES.md).
 
 ## Configuration Android
 
@@ -56,11 +57,14 @@ Pour installer sur un appareil ou émulateur connecté :
 :app                         point d'entrée, Hilt et navigation racine
 ├── :feature:onboarding      écran de validation technique / futur onboarding
 ├── :feature:dashboard       destination temporaire / futur dashboard
-├── :feature:*               frontières UI des futures fonctionnalités
+├── :feature:accounts        comptes et soldes locaux
+├── :feature:categories      catégories système/personnalisées
+├── :feature:transactions    dépenses, revenus et transferts
+├── :feature:*               frontières UI des fonctionnalités suivantes
 ├── :core:designsystem       thème Compose clair/sombre minimal
 ├── :core:ui                 composants UI partagés futurs
-├── :data                    repositories locaux, DataStore et workers futurs
-├── :database                infrastructure Room/KSP, schémas à partir de Phase 4
+├── :data                    implémentations des repositories locaux, DataStore et workers futurs
+├── :database                base Room/KSP, entités, DAO et schémas versionnés
 ├── :domain                  règles métier Kotlin pur
 ├── :core:model              modèles partagés
 ├── :core:common             infrastructure Kotlin commune
