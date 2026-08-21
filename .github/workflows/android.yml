@@ -1,11 +1,12 @@
 name: Android CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [main, "arena/**"]
   pull_request:
     branches: [main]
-
+    
 permissions:
   contents: read
 
