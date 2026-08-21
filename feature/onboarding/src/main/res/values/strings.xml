@@ -1,0 +1,8 @@
+<resources>
+    <string name="technical_brand_monogram">B++</string>
+    <string name="technical_brand_description">Monogramme temporaire Budget++</string>
+    <string name="technical_welcome_title">Budget++</string>
+    <string name="technical_welcome_subtitle">Votre argent, plus clair.</string>
+    <string name="technical_initialization_success">Projet Android initialisé avec succès</string>
+    <string name="technical_start">Commencer</string>
+</resources>

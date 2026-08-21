@@ -6,20 +6,100 @@ Budget++ est une application Android native de gestion budgétaire personnelle, 
 
 ## État du projet
 
-Le projet est actuellement en **phase 1 : conception et architecture générale**. Aucun code Android n'est encore engagé afin de faire valider les choix structurants avant l'initialisation technique.
+- **Phase 1 — Conception :** terminée. Le [dossier de conception fonctionnelle et technique](docs/CONCEPTION.md) reste la source de vérité.
+- **Phase 2 — Fondation Android :** initialisée. Le projet multi-module fournit une application Compose minimale, la navigation, Hilt et les infrastructures Room/DataStore/WorkManager.
 
-- [Dossier complet de conception fonctionnelle et technique](docs/CONCEPTION.md)
+Les fonctionnalités financières ne sont volontairement pas encore implémentées.
 
-## Principes
+## Configuration Android
 
-- Android natif : Kotlin, Jetpack Compose et Material 3
-- Architecture Clean + MVVM pragmatique
-- Room/SQLite comme source locale de vérité
-- Montants financiers stockés en unités monétaires mineures (`Long`)
-- Fonctionnement principal 100 % hors ligne
-- Confidentialité par défaut et export uniquement à l'initiative de l'utilisateur
-- Interface française en V1, prête pour l'anglais, l'arabe et le RTL
+| Paramètre | Valeur | Justification |
+|---|---:|---|
+| `minSdk` | 26 (Android 8.0) | Couverture large avec un socle moderne et maintenable |
+| `compileSdk` | 36 | API Android stable compatible avec la chaîne AGP retenue |
+| `targetSdk` | 36 | Comportements de confidentialité et de sécurité Android actuels |
+| Java | 17 | Version requise et supportée par Android Gradle Plugin |
+| Application ID | `com.budgetplusplus.app` | Identifiant provisoire centralisé dans le convention plugin |
+| Version | `1 / 0.1.0` | Première version de développement, pas une V1 publique |
 
-## Prochaine étape
+## Prérequis
 
-Après validation de la conception : **phase 2 — projet Android et dépendances Gradle**, avec un premier build minimal compilable et testable.
+- Android Studio récent compatible avec AGP 8.13 (ou IntelliJ avec les plugins Android/Kotlin appropriés)
+- JDK 17
+- Android SDK Platform 36 et Build Tools associés
+- Aucun fichier `local.properties` versionné : Android Studio le crée avec le chemin local du SDK
+
+Le Gradle Wrapper fourni est la seule installation Gradle requise.
+
+## Construire et tester
+
+Depuis la racine du dépôt :
+
+```bash
+./gradlew projects
+./gradlew assembleDebug
+./gradlew test
+```
+
+L'APK de développement est produit dans `app/build/outputs/apk/debug/`. Le variant debug utilise l'identifiant `com.budgetplusplus.app.debug` afin de pouvoir cohabiter avec une future version de production.
+
+Pour installer sur un appareil ou émulateur connecté :
+
+```bash
+./gradlew installDebug
+```
+
+## Architecture des modules
+
+```text
+:app                         point d'entrée, Hilt et navigation racine
+├── :feature:onboarding      écran de validation technique / futur onboarding
+├── :feature:dashboard       destination temporaire / futur dashboard
+├── :feature:*               frontières UI des futures fonctionnalités
+├── :core:designsystem       thème Compose clair/sombre minimal
+├── :core:ui                 composants UI partagés futurs
+├── :data                    repositories locaux, DataStore et workers futurs
+├── :database                infrastructure Room/KSP, schémas à partir de Phase 4
+├── :domain                  règles métier Kotlin pur
+├── :core:model              modèles partagés
+├── :core:common             infrastructure Kotlin commune
+├── :core:security           frontière Keystore/verrouillage future
+└── :core:testing            fakes et fixtures partagés futurs
+```
+
+Les features dépendent uniquement des modules core autorisés. Les modules core ne dépendent d'aucune feature. Les modules volontairement vides matérialisent une frontière d'architecture sans introduire prématurément des modèles métier.
+
+Le nom `:feature:analytics` suit `docs/CONCEPTION.md`; « Analyse »/« Statistiques » désigne la même zone fonctionnelle côté produit.
+
+## Build logic
+
+`build-logic` contient des convention plugins pragmatiques :
+
+- `budgetplusplus.android.application`
+- `budgetplusplus.android.library`
+- `budgetplusplus.android.compose`
+- `budgetplusplus.android.feature`
+- `budgetplusplus.android.room`
+- `budgetplusplus.android.hilt`
+- `budgetplusplus.kotlin.library`
+
+Ils centralisent les SDK, Java/Kotlin 17, Compose, namespaces, tests et traitements KSP. Les versions des plugins et bibliothèques résident dans `gradle/libs.versions.toml`.
+
+## Première application
+
+Le lancement affiche un écran Budget++ localisé en français, anglais et arabe. Le bouton **Commencer** navigue vers un second écran temporaire, ce qui valide Compose, Material 3, le thème système clair/sombre et Navigation Compose. Ces écrans seront remplacés par les fonctionnalités prévues aux phases correspondantes.
+
+## Confidentialité et secrets
+
+- La sauvegarde automatique Android est désactivée et les domaines financiers sont exclus des transferts système.
+- Aucun secret, keystore, token ou `local.properties` ne doit être committé.
+- La configuration de signature de production sera externe au dépôt.
+- Aucune permission réseau n'est déclarée pour l'application à ce stade.
+
+## Intégration continue
+
+`.github/workflows/android.yml` valide le wrapper, liste les projets, construit l'application debug et exécute les tests unitaires sur chaque pull request vers `main` et sur les branches suivies.
+
+## Prochaine phase
+
+**Phase 3 — Design System Budget++** : tokens complets, composants réutilisables, accessibilité, previews et validation visuelle, sans démarrer prématurément le moteur financier.

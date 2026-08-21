@@ -1,0 +1,5 @@
+<resources>
+    <string name="technical_home_title">Foundation ready</string>
+    <string name="technical_home_message">Compose navigation works. The actual dashboard will be built during Phase 8.</string>
+    <string name="technical_back">Back</string>
+</resources>

@@ -1,0 +1,8 @@
+<resources>
+    <string name="technical_brand_monogram">B++</string>
+    <string name="technical_brand_description">حرف مؤقت لتطبيق باجت++</string>
+    <string name="technical_welcome_title">باجت++</string>
+    <string name="technical_welcome_subtitle">أموالك، أكثر وضوحًا.</string>
+    <string name="technical_initialization_success">تمت تهيئة مشروع أندرويد بنجاح</string>
+    <string name="technical_start">ابدأ</string>
+</resources>
