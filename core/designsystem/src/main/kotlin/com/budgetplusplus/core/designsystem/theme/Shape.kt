@@ -2,10 +2,12 @@ package com.budgetplusplus.core.designsystem.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes
-import androidx.compose.ui.unit.dp
+import com.budgetplusplus.core.designsystem.tokens.BudgetRadii
 
 val BudgetPlusPlusShapes = Shapes(
-    small = RoundedCornerShape(12.dp),
-    medium = RoundedCornerShape(16.dp),
-    large = RoundedCornerShape(20.dp),
+    extraSmall = RoundedCornerShape(BudgetRadii.ExtraSmall),
+    small = RoundedCornerShape(BudgetRadii.Small),
+    medium = RoundedCornerShape(BudgetRadii.Medium),
+    large = RoundedCornerShape(BudgetRadii.Large),
+    extraLarge = RoundedCornerShape(BudgetRadii.ExtraLarge),
 )

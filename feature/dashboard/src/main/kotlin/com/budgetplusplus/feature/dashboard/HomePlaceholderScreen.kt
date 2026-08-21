@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun HomePlaceholderScreen(
     onBackClick: () -> Unit,
+    onDesignSystemClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -37,6 +38,9 @@ fun HomePlaceholderScreen(
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        Button(onClick = onDesignSystemClick) {
+            Text(stringResource(R.string.technical_open_design_system))
+        }
         Button(onClick = onBackClick) {
             Text(stringResource(R.string.technical_back))
         }

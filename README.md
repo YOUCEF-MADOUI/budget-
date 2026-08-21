@@ -7,9 +7,10 @@ Budget++ est une application Android native de gestion budgétaire personnelle, 
 ## État du projet
 
 - **Phase 1 — Conception :** terminée. Le [dossier de conception fonctionnelle et technique](docs/CONCEPTION.md) reste la source de vérité.
-- **Phase 2 — Fondation Android :** initialisée. Le projet multi-module fournit une application Compose minimale, la navigation, Hilt et les infrastructures Room/DataStore/WorkManager.
+- **Phase 2 — Fondation Android :** terminée et validée par la CI.
+- **Phase 3 — Design System :** implémentée avec thèmes clair/sombre, tokens sémantiques, composants génériques et financiers, previews RTL/accessibilité et catalogue interne.
 
-Les fonctionnalités financières ne sont volontairement pas encore implémentées.
+Documentation : [Design System Budget++](docs/PHASE_3_DESIGN_SYSTEM.md). Les fonctionnalités financières métier ne sont volontairement pas encore implémentées.
 
 ## Configuration Android
 
@@ -87,7 +88,7 @@ Ils centralisent les SDK, Java/Kotlin 17, Compose, namespaces, tests et traiteme
 
 ## Première application
 
-Le lancement affiche un écran Budget++ localisé en français, anglais et arabe. Le bouton **Commencer** navigue vers un second écran temporaire, ce qui valide Compose, Material 3, le thème système clair/sombre et Navigation Compose. Ces écrans seront remplacés par les fonctionnalités prévues aux phases correspondantes.
+Le lancement affiche un écran Budget++ localisé en français, anglais et arabe. Le bouton **Commencer** ouvre un écran technique depuis lequel le catalogue interne du Design System est accessible. Ce catalogue permet de vérifier palette, typographie, composants, thèmes clair/sombre, RTL et données financières fictives. Ces destinations seront retirées de la navigation utilisateur avant publication.
 
 ## Confidentialité et secrets
 
@@ -102,4 +103,4 @@ Le lancement affiche un écran Budget++ localisé en français, anglais et arabe
 
 ## Prochaine phase
 
-**Phase 3 — Design System Budget++** : tokens complets, composants réutilisables, accessibilité, previews et validation visuelle, sans démarrer prématurément le moteur financier.
+**Phase 4 — Base Room** : entités, relations, DAO, index, convertisseurs, migrations et tests de base conformément au modèle validé, sans coupler la persistance aux composants UI.

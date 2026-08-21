@@ -2,4 +2,5 @@
     <string name="technical_home_title">الأساس جاهز</string>
     <string name="technical_home_message">تعمل الملاحة باستخدام Compose. ستُبنى لوحة المعلومات الفعلية في المرحلة الثامنة.</string>
     <string name="technical_back">رجوع</string>
+    <string name="technical_open_design_system">فتح نظام التصميم</string>
 </resources>
