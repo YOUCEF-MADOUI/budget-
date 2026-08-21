@@ -9,7 +9,8 @@ import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.getByType
 
 class AndroidComposeConventionPlugin : Plugin<Project> {
-    override fun apply(target: Project) = with(target) {
+    override fun apply(target: Project) {
+        with(target) {
         pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
 
         pluginManager.withPlugin("com.android.application") {
@@ -29,5 +30,6 @@ class AndroidComposeConventionPlugin : Plugin<Project> {
         dependencies.add("implementation", libs.findLibrary("androidx-compose-ui-tooling-preview").get())
         dependencies.add("implementation", libs.findLibrary("androidx-compose-material3").get())
         dependencies.add("debugImplementation", libs.findLibrary("androidx-compose-ui-tooling").get())
+          }
     }
 }

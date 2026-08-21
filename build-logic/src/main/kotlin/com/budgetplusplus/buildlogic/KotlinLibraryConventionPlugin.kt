@@ -13,7 +13,8 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 class KotlinLibraryConventionPlugin : Plugin<Project> {
-    override fun apply(target: Project) = with(target) {
+    override fun apply(target: Project) {
+        with(target) {
         pluginManager.apply("org.jetbrains.kotlin.jvm")
 
         extensions.configure<JavaPluginExtension> {
@@ -32,5 +33,6 @@ class KotlinLibraryConventionPlugin : Plugin<Project> {
         val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
         dependencies.add("testImplementation", libs.findLibrary("junit4").get())
         tasks.withType<Test>().configureEach { useJUnit() }
+          }
     }
 }

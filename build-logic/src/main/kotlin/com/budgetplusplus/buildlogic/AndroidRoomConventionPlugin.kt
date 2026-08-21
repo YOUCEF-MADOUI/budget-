@@ -8,7 +8,8 @@ import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.getByType
 
 class AndroidRoomConventionPlugin : Plugin<Project> {
-    override fun apply(target: Project) = with(target) {
+    override fun apply(target: Project) {
+        with(target) {
         pluginManager.apply("com.google.devtools.ksp")
 
         val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
@@ -20,5 +21,6 @@ class AndroidRoomConventionPlugin : Plugin<Project> {
             arg("room.schemaLocation", layout.projectDirectory.dir("schemas").asFile.absolutePath)
             arg("room.generateKotlin", "true")
         }
+          }
     }
 }
