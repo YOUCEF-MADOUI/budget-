@@ -39,6 +39,7 @@ fun HomePlaceholderScreen(
     onCategoriesClick: () -> Unit,
     onTransactionsClick: () -> Unit,
     onBudgetsClick: () -> Unit,
+    onRecurringClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DashboardViewModel = hiltViewModel(),
 ) {
@@ -50,6 +51,7 @@ fun HomePlaceholderScreen(
     Scaffold(
         topBar = { Box { BudgetTopAppBar(stringResource(R.string.dashboard_title), onMoreClick = { showMenu = true }); DropdownMenu(showMenu, { showMenu = false }) {
             DropdownMenuItem({ Text(stringResource(R.string.home_categories)) }, { showMenu = false; onCategoriesClick() })
+            DropdownMenuItem({ Text(stringResource(R.string.home_recurring)) }, { showMenu = false; onRecurringClick() })
             DropdownMenuItem({ Text(stringResource(R.string.technical_open_design_system)) }, { showMenu = false; onDesignSystemClick() })
         } } },
         modifier = modifier,
@@ -84,6 +86,7 @@ private fun DashboardContent(
     onAccountsClick: () -> Unit,
     onTransactionsClick: () -> Unit,
     onBudgetsClick: () -> Unit,
+    onRecurringClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     if (data.accounts.isEmpty()) {

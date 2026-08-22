@@ -56,3 +56,14 @@ val MIGRATION_3_4 = object : Migration(3, 4) {
         db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_budget_alert_events_budget_id_period_key_percentage ON budget_alert_events (budget_id, period_key, percentage)")
     }
 }
+
+val MIGRATION_4_5 = object : Migration(4, 5) {
+ override fun migrate(db:SupportSQLiteDatabase){
+  db.execSQL("""CREATE TABLE IF NOT EXISTS recurring_transactions (id TEXT NOT NULL PRIMARY KEY,workspace_id TEXT NOT NULL,name TEXT NOT NULL,type TEXT NOT NULL,amount_minor INTEGER NOT NULL,currency_code TEXT NOT NULL,account_id TEXT NOT NULL,destination_account_id TEXT,category_id TEXT,subcategory_id TEXT,description TEXT NOT NULL,frequency TEXT NOT NULL,anchor_month INTEGER NOT NULL,anchor_day INTEGER NOT NULL,start_date TEXT NOT NULL,end_date TEXT,next_due_date TEXT NOT NULL,zone_id TEXT NOT NULL,is_active INTEGER NOT NULL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,deleted_at INTEGER,FOREIGN KEY(workspace_id) REFERENCES workspaces(id) ON UPDATE NO ACTION ON DELETE CASCADE,FOREIGN KEY(account_id) REFERENCES accounts(id) ON UPDATE NO ACTION ON DELETE RESTRICT,FOREIGN KEY(destination_account_id) REFERENCES accounts(id) ON UPDATE NO ACTION ON DELETE RESTRICT,FOREIGN KEY(category_id) REFERENCES categories(id) ON UPDATE NO ACTION ON DELETE SET NULL,FOREIGN KEY(subcategory_id) REFERENCES subcategories(id) ON UPDATE NO ACTION ON DELETE SET NULL)""")
+  db.execSQL("CREATE INDEX IF NOT EXISTS index_recurring_transactions_workspace_id_is_active_next_due_date_deleted_at ON recurring_transactions(workspace_id,is_active,next_due_date,deleted_at)")
+  listOf("account_id","destination_account_id","category_id","subcategory_id").forEach{db.execSQL("CREATE INDEX IF NOT EXISTS index_recurring_transactions_${it} ON recurring_transactions(${it})")}
+  db.execSQL("""CREATE TABLE IF NOT EXISTS recurring_occurrences (id TEXT NOT NULL PRIMARY KEY,recurring_transaction_id TEXT NOT NULL,due_date TEXT NOT NULL,status TEXT NOT NULL,transaction_id TEXT,error_code TEXT,processed_at INTEGER NOT NULL,FOREIGN KEY(recurring_transaction_id) REFERENCES recurring_transactions(id) ON UPDATE NO ACTION ON DELETE CASCADE)""")
+  db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_recurring_occurrences_recurring_transaction_id_due_date ON recurring_occurrences(recurring_transaction_id,due_date)")
+  db.execSQL("CREATE INDEX IF NOT EXISTS index_recurring_occurrences_transaction_id ON recurring_occurrences(transaction_id)")
+ }
+}

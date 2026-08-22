@@ -5,6 +5,8 @@ import com.budgetplusplus.core.model.AccountType
 import com.budgetplusplus.core.model.BudgetPeriodType
 import com.budgetplusplus.core.model.BudgetScope
 import com.budgetplusplus.core.model.CategoryKind
+import com.budgetplusplus.core.model.RecurrenceFrequency
+import com.budgetplusplus.core.model.RecurrenceOccurrenceStatus
 import com.budgetplusplus.core.model.TransactionType
 
 class RoomConverters {
@@ -18,4 +20,8 @@ class RoomConverters {
     @TypeConverter fun budgetScope(value: String): BudgetScope = BudgetScope.valueOf(value)
     @TypeConverter fun budgetPeriodType(value: BudgetPeriodType): String = value.name
     @TypeConverter fun budgetPeriodType(value: String): BudgetPeriodType = BudgetPeriodType.valueOf(value)
+    @TypeConverter fun recurrenceFrequency(value: RecurrenceFrequency): String = value.name
+    @TypeConverter fun recurrenceFrequency(value: String): RecurrenceFrequency = RecurrenceFrequency.valueOf(value)
+    @TypeConverter fun occurrenceStatus(value: RecurrenceOccurrenceStatus): String = value.name
+    @TypeConverter fun occurrenceStatus(value: String): RecurrenceOccurrenceStatus = RecurrenceOccurrenceStatus.valueOf(value)
 }

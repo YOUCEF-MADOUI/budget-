@@ -11,5 +11,7 @@ class MigrationsTest {
         assertEquals(3, MIGRATION_2_3.endVersion)
         assertEquals(3, MIGRATION_3_4.startVersion)
         assertEquals(4, MIGRATION_3_4.endVersion)
+        assertEquals(4, MIGRATION_4_5.startVersion)
+        assertEquals(5, MIGRATION_4_5.endVersion)
     }
 }

@@ -9,6 +9,9 @@ import com.budgetplusplus.core.model.CategoryKind
 import com.budgetplusplus.core.model.DashboardData
 import com.budgetplusplus.core.model.FinanceTransaction
 import com.budgetplusplus.core.model.Subcategory
+import com.budgetplusplus.core.model.RecurringInput
+import com.budgetplusplus.core.model.RecurringOccurrence
+import com.budgetplusplus.core.model.RecurringTransaction
 import com.budgetplusplus.core.model.TransactionType
 import kotlinx.coroutines.flow.Flow
 
@@ -38,6 +41,15 @@ interface BudgetRepository {
 
 interface DashboardRepository {
     fun observeDashboard(fromInclusive: Long, toExclusive: Long): Flow<DashboardData>
+}
+
+interface RecurringRepository {
+    fun observeRecurring(): Flow<List<RecurringTransaction>>
+    fun observeOccurrences(): Flow<List<RecurringOccurrence>>
+    suspend fun save(input: RecurringInput)
+    suspend fun setActive(id: String, active: Boolean)
+    suspend fun delete(id: String)
+    suspend fun processDue(): Long?
 }
 
 interface TransactionRepository {

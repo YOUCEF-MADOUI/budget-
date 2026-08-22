@@ -8,6 +8,7 @@ import com.budgetplusplus.database.BudgetPlusDatabase
 import com.budgetplusplus.database.MIGRATION_1_2
 import com.budgetplusplus.database.MIGRATION_2_3
 import com.budgetplusplus.database.MIGRATION_3_4
+import com.budgetplusplus.database.MIGRATION_4_5
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,7 +22,7 @@ object DatabaseModule {
     @Provides @Singleton
     fun database(@ApplicationContext context: Context): BudgetPlusDatabase =
         Room.databaseBuilder(context, BudgetPlusDatabase::class.java, BudgetPlusDatabase.NAME)
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
             .addCallback(object : RoomDatabase.Callback() {
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     super.onCreate(db)
@@ -48,4 +49,5 @@ object DatabaseModule {
     @Provides fun transactions(db: BudgetPlusDatabase) = db.transactionDao()
     @Provides fun dashboard(db: BudgetPlusDatabase) = db.dashboardDao()
     @Provides fun budgets(db: BudgetPlusDatabase) = db.budgetDao()
+    @Provides fun recurring(db: BudgetPlusDatabase) = db.recurringDao()
 }

@@ -10,5 +10,6 @@ class RoomConvertersTest {
   assertEquals(TransactionType.TRANSFER, converter.transactionType(converter.transactionType(TransactionType.TRANSFER)))
   assertEquals(BudgetScope.CATEGORY, converter.budgetScope(converter.budgetScope(BudgetScope.CATEGORY)))
   assertEquals(BudgetPeriodType.CUSTOM, converter.budgetPeriodType(converter.budgetPeriodType(BudgetPeriodType.CUSTOM)))
+  assertEquals(RecurrenceFrequency.MONTHLY, converter.recurrenceFrequency(converter.recurrenceFrequency(RecurrenceFrequency.MONTHLY)))
  }
 }
