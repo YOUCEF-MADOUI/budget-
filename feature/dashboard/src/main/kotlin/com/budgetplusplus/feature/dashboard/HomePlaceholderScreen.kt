@@ -86,7 +86,6 @@ private fun DashboardContent(
     onAccountsClick: () -> Unit,
     onTransactionsClick: () -> Unit,
     onBudgetsClick: () -> Unit,
-    onRecurringClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     if (data.accounts.isEmpty()) {
