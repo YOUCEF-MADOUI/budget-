@@ -7,13 +7,15 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.test.core.app.ApplicationProvider
 import org.junit.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class) @Config(sdk=[35])
 class FullMigrationTest {
- private val context:Context=ApplicationProvider.getApplicationContext();private val name="migration-chain.db"
+ private val context:Context=ApplicationProvider.getApplicationContext<Context>();private val name="migration-chain.db"
  @Before fun clean(){context.deleteDatabase(name)}
  @After fun after(){context.deleteDatabase(name)}
  @Test fun `migrates a populated schema from version one through six`(){
