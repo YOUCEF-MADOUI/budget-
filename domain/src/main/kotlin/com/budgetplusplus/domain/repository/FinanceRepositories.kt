@@ -32,9 +32,9 @@ interface AccountRepository {
 interface CategoryRepository {
     fun observeCategories(kind: CategoryKind? = null): Flow<List<Category>>
     fun observeSubcategories(): Flow<List<Subcategory>>
-    suspend fun create(name: String, kind: CategoryKind, iconKey: String = "category", colorKey: String = "primary")
+    suspend fun create(name: String, kind: CategoryKind, iconKey: String = "category", colorKey: String = "primary"): String
     suspend fun update(id: String, name: String, iconKey: String, colorKey: String)
-    suspend fun createSubcategory(categoryId: String, name: String)
+    suspend fun createSubcategory(categoryId: String, name: String): String
     suspend fun updateSubcategory(id: String, name: String)
     suspend fun setArchived(id: String, archived: Boolean, replacementId: String? = null)
     suspend fun setSubcategoryArchived(id: String, archived: Boolean, replacementId: String? = null)
@@ -89,6 +89,7 @@ interface SearchRepository {
 
 interface TransactionRepository {
     fun observeTransactions(): Flow<List<FinanceTransaction>>
+    suspend fun get(id: String): FinanceTransaction?
     suspend fun create(
         type: TransactionType,
         amountMinor: Long,
@@ -98,6 +99,18 @@ interface TransactionRepository {
         description: String,
         subcategoryId: String? = null,
         currencyCode: String = "DZD",
+        localDate: String? = null,
+    )
+    suspend fun update(
+        id: String,
+        type: TransactionType,
+        amountMinor: Long,
+        accountId: String,
+        destinationAccountId: String?,
+        categoryId: String?,
+        description: String,
+        subcategoryId: String?,
+        localDate: String,
     )
     suspend fun delete(id: String)
 }

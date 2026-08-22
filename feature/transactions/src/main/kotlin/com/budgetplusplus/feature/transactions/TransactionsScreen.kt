@@ -42,13 +42,11 @@ class TransactionsViewModel @Inject constructor(accountsRepository: AccountRepos
 }
 
 @Composable
-fun TransactionsScreen(onBack: (() -> Unit)?, onAdvancedSearch: () -> Unit, viewModel: TransactionsViewModel = hiltViewModel()) {
+fun TransactionsScreen(onBack: (() -> Unit)?, onAdvancedSearch: () -> Unit, onCreate: () -> Unit, onEdit: (String) -> Unit, viewModel: TransactionsViewModel = hiltViewModel()) {
     val rows by viewModel.transactions.collectAsStateWithLifecycle()
     val accounts by viewModel.accounts.collectAsStateWithLifecycle()
-    val categories by viewModel.categories.collectAsStateWithLifecycle()
-    val subcategories by viewModel.subcategories.collectAsStateWithLifecycle()
     val hasError by viewModel.hasError.collectAsStateWithLifecycle()
-    var add by remember { mutableStateOf(false) }
+    var selected by remember { mutableStateOf<FinanceTransaction?>(null) }
     var filter by remember { mutableStateOf<TransactionType?>(null) }
     var pendingDelete by remember { mutableStateOf<FinanceTransaction?>(null) }
     val visibleRows = rows.filter { filter == null || it.type == filter }
@@ -59,7 +57,7 @@ fun TransactionsScreen(onBack: (() -> Unit)?, onAdvancedSearch: () -> Unit, view
     Scaffold(
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = { BudgetTopAppBar(stringResource(R.string.transactions_title), onBackClick = onBack) },
-        floatingActionButton = { FloatingActionButton(onClick = { if (accounts.isNotEmpty()) add = true }) { Text(stringResource(R.string.transactions_add_symbol)) } },
+        floatingActionButton = { FloatingActionButton(onClick = { if (accounts.isNotEmpty()) onCreate() }) { Text(stringResource(R.string.transactions_add_symbol)) } },
     ) { padding -> Column(Modifier.padding(padding).fillMaxSize()) {
         Button(onClick = onAdvancedSearch, modifier = Modifier.padding(horizontal = 12.dp).fillMaxWidth()) { Text(stringResource(R.string.transactions_advanced_search)) }
         if (rows.isNotEmpty()) {
@@ -73,7 +71,7 @@ fun TransactionsScreen(onBack: (() -> Unit)?, onAdvancedSearch: () -> Unit, view
             title = stringResource(if (filter == null) R.string.transactions_empty else R.string.transactions_no_result),
             message = stringResource(if (accounts.isEmpty()) R.string.transactions_need_account else if (filter == null) R.string.transactions_empty_message else R.string.transactions_no_result_message),
             actionText = if (accounts.isEmpty()) null else stringResource(R.string.transactions_add_action),
-            onAction = if (accounts.isEmpty()) null else ({ add = true }),
+            onAction = if (accounts.isEmpty()) null else onCreate,
             modifier = Modifier.fillMaxSize(),
         ) else LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             items(visibleRows, key = { it.id }) { transaction ->
@@ -88,12 +86,12 @@ fun TransactionsScreen(onBack: (() -> Unit)?, onAdvancedSearch: () -> Unit, view
                     currencyCode = transaction.currencyCode,
                     type = visualType(transaction.type),
                     categoryIcon = BudgetIcons.Category,
-                    onClick = { pendingDelete = transaction },
+                    onClick = { selected = transaction },
                 )
             }
         }
     } }
-    if (add) AddTransactionDialog(accounts, categories, subcategories, { add = false }) { type, amount, account, destination, category, subcategory, description -> viewModel.add(type, amount, account, destination, category, subcategory, description) { add = false } }
+    selected?.let { transaction -> AlertDialog(onDismissRequest = { selected = null }, title = { Text(stringResource(R.string.transactions_action_title)) }, text = { Text(stringResource(R.string.transactions_action_message)) }, confirmButton = { TextButton({ selected = null; onEdit(transaction.id) }) { Text(stringResource(R.string.transactions_edit)) } }, dismissButton = { Row { TextButton({ selected = null }) { Text(stringResource(R.string.transactions_cancel_action)) }; TextButton({ selected = null; pendingDelete = transaction }) { Text(stringResource(R.string.transactions_delete)) } } }) }
     pendingDelete?.let { transaction -> BudgetConfirmationDialog(
         title = stringResource(R.string.transactions_delete_title),
         message = stringResource(R.string.transactions_delete_message),
@@ -104,49 +102,6 @@ fun TransactionsScreen(onBack: (() -> Unit)?, onAdvancedSearch: () -> Unit, view
     ) }
 }
 
-@Composable
-private fun AddTransactionDialog(accounts: List<Account>, categories: List<Category>, subcategories: List<Subcategory>, onDismiss: () -> Unit, onSave: (TransactionType, Long, String, String?, String?, String?, String) -> Unit) {
-    var type by remember { mutableStateOf(TransactionType.EXPENSE) }
-    var amount by remember { mutableStateOf("") }
-    var account by remember { mutableStateOf(accounts.first().id) }
-    var destination by remember { mutableStateOf<String?>(null) }
-    var category by remember { mutableStateOf<String?>(null) }
-    var subcategory by remember { mutableStateOf<String?>(null) }
-    var description by remember { mutableStateOf("") }
-    val eligible = categories.filter { it.kind.name == type.name }
-    LaunchedEffect(type) { category = null; subcategory = null; destination = null }
-    val parsed = parseMinor(amount)
-    val amountError = amount.isNotEmpty() && (parsed == null || parsed <= 0)
-    val selectionValid = if (type == TransactionType.TRANSFER) destination != null && destination != account else category != null
-    val valid = parsed != null && parsed > 0 && selectionValid
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.transactions_add_title)) },
-        text = { LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            item { Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) { TransactionType.entries.forEach { FilterChip(type == it, { type = it }, { Text(typeLabel(it)) }) } } }
-            item { BudgetAmountField(amount, { amount = it }, stringResource(R.string.transactions_amount), stringResource(R.string.transactions_currency), isError = amountError, supportingText = if (amountError) stringResource(R.string.transactions_amount_error) else null) }
-            item { SimpleSelector(stringResource(R.string.transactions_account), accounts, account, { it.name }) { account = it.id; if (destination == it.id) destination = null } }
-            if (type == TransactionType.TRANSFER) item { SimpleSelector(stringResource(R.string.transactions_destination), accounts.filter { it.id != account }, destination, { it.name }) { destination = it.id } }
-            else item {
-                SimpleSelector(stringResource(R.string.transactions_category), eligible, category, { categoryText(it) }) { category = it.id; subcategory = null }
-                val eligibleSubs = subcategories.filter { it.categoryId == category }
-                if (eligibleSubs.isNotEmpty()) SimpleSelector(stringResource(R.string.transactions_subcategory), eligibleSubs, subcategory, { it.name }) { subcategory = it.id }
-                if (eligible.isEmpty()) Text(stringResource(R.string.transactions_no_category), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
-            }
-            item { BudgetTextField(description, { if (it.length <= 120) description = it }, stringResource(R.string.transactions_description), supportingText = stringResource(R.string.transactions_description_limit, description.length)) }
-        } },
-        confirmButton = { TextButton(onClick = { onSave(type, parsed!!, account, destination, category, subcategory, description) }, enabled = valid) { Text(stringResource(R.string.transactions_save)) } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.transactions_cancel)) } },
-    )
-}
-
-@Composable
-private fun <T : Any> SimpleSelector(label: String, values: List<T>, selectedId: String?, text: @Composable (T) -> String, select: (T) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    val selected = values.firstOrNull { item -> when(item) { is Account -> item.id == selectedId; is Category -> item.id == selectedId; is Subcategory -> item.id == selectedId; else -> false } }
-    Box { OutlinedButton({ expanded = true }, Modifier.fillMaxWidth(), enabled = values.isNotEmpty()) { Text(selected?.let { text(it) } ?: label) }; DropdownMenu(expanded, { expanded = false }) { values.forEach { item -> DropdownMenuItem({ Text(text(item)) }, { select(item); expanded = false }) } } }
-}
-@Composable private fun categoryText(category: Category) = category.customName ?: category.nameKey?.let { transactionCategory(it) } ?: stringResource(R.string.transaction_other)
 @Composable private fun transactionCategory(key: String) = stringResource(when(key) { "category_food" -> R.string.transaction_food; "category_transport" -> R.string.transaction_transport; "category_housing" -> R.string.transaction_housing; "category_health" -> R.string.transaction_health; "category_leisure" -> R.string.transaction_leisure; "category_utilities" -> R.string.transaction_utilities; "category_education" -> R.string.transaction_education; "category_family" -> R.string.transaction_family; "category_clothing" -> R.string.transaction_clothing; "category_taxes" -> R.string.transaction_taxes; "category_salary" -> R.string.transaction_salary; "category_freelance" -> R.string.transaction_freelance; "category_pension" -> R.string.transaction_pension; "category_benefits" -> R.string.transaction_benefits; "category_gift" -> R.string.transaction_gift; else -> R.string.transaction_other })
 @Composable private fun typeLabel(type: TransactionType) = stringResource(when(type) { TransactionType.EXPENSE -> R.string.transaction_expense; TransactionType.INCOME -> R.string.transaction_income; TransactionType.TRANSFER -> R.string.transaction_transfer })
 private fun visualType(type: TransactionType) = when(type) { TransactionType.EXPENSE -> TransactionVisualType.Expense; TransactionType.INCOME -> TransactionVisualType.Income; TransactionType.TRANSFER -> TransactionVisualType.Transfer }

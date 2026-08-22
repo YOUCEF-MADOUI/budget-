@@ -41,7 +41,7 @@ interface DashboardDao {
         t.account_id AS accountId, a.name AS accountName, t.destination_account_id AS destinationAccountId,
         da.name AS destinationAccountName, t.category_id AS categoryId, c.name_key AS categoryNameKey,
         c.custom_name AS categoryCustomName, t.subcategory_id AS subcategoryId, s.custom_name AS subcategoryName,
-        t.occurred_at AS occurredAt, t.description
+        t.occurred_at AS occurredAt, t.local_date AS localDate, t.zone_id AS zoneId, t.description
         FROM finance_transactions t JOIN accounts a ON a.id = t.account_id
         LEFT JOIN accounts da ON da.id = t.destination_account_id LEFT JOIN categories c ON c.id = t.category_id
         LEFT JOIN subcategories s ON s.id = t.subcategory_id

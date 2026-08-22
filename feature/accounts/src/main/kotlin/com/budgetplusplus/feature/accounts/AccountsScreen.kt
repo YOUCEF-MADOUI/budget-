@@ -23,7 +23,7 @@ import com.budgetplusplus.core.model.Account
 import com.budgetplusplus.core.model.AccountType
 
 @Composable
-fun AccountsScreen(onBack: (() -> Unit)?, viewModel: AccountsViewModel = hiltViewModel()) {
+fun AccountsScreen(onBack: (() -> Unit)?, onAccountClick: (String) -> Unit = {}, viewModel: AccountsViewModel = hiltViewModel()) {
     val accounts by viewModel.accounts.collectAsStateWithLifecycle()
     val hasError by viewModel.hasError.collectAsStateWithLifecycle()
     var showAdd by remember { mutableStateOf(false) }
@@ -69,9 +69,10 @@ fun AccountsScreen(onBack: (() -> Unit)?, viewModel: AccountsViewModel = hiltVie
                             balanceMinor = account.currentBalanceMinor,
                             currencyCode = account.currencyCode,
                             icon = BudgetIcons.Account,
-                            onClick = { pendingAccount = account },
+                            onClick = { if (account.isArchived) pendingAccount = account else onAccountClick(account.id) },
                             state = if (account.isArchived) AccountVisualState.Archived else AccountVisualState.Active,
                         )
+                        if (!account.isArchived) TextButton(onClick = { pendingAccount = account }) { Text(stringResource(R.string.accounts_archive)) }
                     }
                 }
             }

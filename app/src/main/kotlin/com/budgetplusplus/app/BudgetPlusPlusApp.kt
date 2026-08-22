@@ -16,6 +16,7 @@ import com.budgetplusplus.core.designsystem.components.BudgetNavigationItem
 import com.budgetplusplus.core.designsystem.demo.DesignSystemDemoScreen
 import com.budgetplusplus.core.designsystem.icons.BudgetIcons
 import com.budgetplusplus.feature.accounts.AccountsScreen
+import com.budgetplusplus.feature.accounts.AccountDetailScreen
 import com.budgetplusplus.feature.categories.CategoriesScreen
 import com.budgetplusplus.feature.budgets.BudgetsScreen
 import com.budgetplusplus.feature.recurring.RecurringScreen
@@ -26,6 +27,7 @@ import com.budgetplusplus.feature.security.SecuritySettingsScreen
 import com.budgetplusplus.feature.dashboard.HomePlaceholderScreen
 import com.budgetplusplus.feature.onboarding.TechnicalWelcomeScreen
 import com.budgetplusplus.feature.transactions.TransactionsScreen
+import com.budgetplusplus.feature.transactions.TransactionEditorScreen
 
 @Composable
 fun BudgetPlusPlusApp() {
@@ -84,13 +86,16 @@ fun BudgetPlusPlusApp() {
                     onSecurityClick = { navController.navigate(AppDestination.Security.route) },
                 )
             }
-            composable(AppDestination.Accounts.route) { AccountsScreen(onBack = null) }
+            composable(AppDestination.Accounts.route) { AccountsScreen(onBack = null, onAccountClick = { id -> navController.navigate("accounts/$id") }) }
+            composable(AppDestination.AccountDetail.route) { entry -> AccountDetailScreen(entry.arguments?.getString("accountId").orEmpty(), navController::navigateUp, { id -> navController.navigate("transactions/edit/$id") }) }
             composable(AppDestination.Categories.route) { CategoriesScreen(onBack = null) }
-            composable(AppDestination.Transactions.route) { TransactionsScreen(onBack = null, onAdvancedSearch = { navController.navigate(AppDestination.Search.route) }) }
+            composable(AppDestination.Transactions.route) { TransactionsScreen(onBack = null, onAdvancedSearch = { navController.navigate(AppDestination.Search.route) }, onCreate = { navController.navigate(AppDestination.TransactionNew.route) }, onEdit = { id -> navController.navigate("transactions/edit/$id") }) }
+            composable(AppDestination.TransactionNew.route) { TransactionEditorScreen(null, navController::navigateUp) }
+            composable(AppDestination.TransactionEdit.route) { entry -> TransactionEditorScreen(entry.arguments?.getString("transactionId"), navController::navigateUp) }
             composable(AppDestination.Budgets.route) { BudgetsScreen(onBack = navController::navigateUp) }
             composable(AppDestination.Recurring.route) { RecurringScreen(onBack = navController::navigateUp) }
             composable(AppDestination.Analytics.route) { AnalyticsScreen(onBack = null) }
-            composable(AppDestination.Search.route) { SearchScreen(onBack = navController::navigateUp) }
+            composable(AppDestination.Search.route) { SearchScreen(onBack = navController::navigateUp, onEdit = { id -> navController.navigate("transactions/edit/$id") }) }
             composable(AppDestination.Backup.route) { BackupScreen(onBack = navController::navigateUp) }
             composable(AppDestination.Security.route) { SecuritySettingsScreen(onBack = navController::navigateUp) }
             composable(AppDestination.DesignSystem.route) { DesignSystemDemoScreen(onBackClick = navController::navigateUp) }

@@ -12,6 +12,7 @@ import com.budgetplusplus.database.BudgetPlusDatabase
 import com.budgetplusplus.database.dao.AccountDao
 import com.budgetplusplus.database.dao.CategoryDao
 import com.budgetplusplus.database.dao.TransactionDao
+import com.budgetplusplus.database.dao.TransactionDetails
 import com.budgetplusplus.database.entity.AccountEntity
 import com.budgetplusplus.database.entity.CategoryEntity
 import com.budgetplusplus.database.entity.FinanceTransactionEntity
@@ -41,12 +42,13 @@ class LocalAccountRepository @Inject constructor(private val dao: AccountDao) : 
 class LocalCategoryRepository @Inject constructor(private val db: BudgetPlusDatabase, private val dao: CategoryDao) : CategoryRepository {
     override fun observeCategories(kind: CategoryKind?): Flow<List<Category>> = dao.observeDetails().map { rows -> rows.filter { kind == null || it.kind == kind.name }.map { Category(it.id, CategoryKind.valueOf(it.kind), it.nameKey, it.customName, it.isSystem, it.isArchived, it.iconKey, it.colorKey, it.usageCount) } }
     override fun observeSubcategories(): Flow<List<Subcategory>> = dao.observeSubcategories().map { rows -> rows.map { Subcategory(it.id, it.categoryId, it.customName ?: it.nameKey.orEmpty(), it.isSystem, it.isArchived, it.usageCount) } }
-    override suspend fun create(name: String, kind: CategoryKind, iconKey: String, colorKey: String) {
-        require(FinanceValidator.isValidName(name)); val now = System.currentTimeMillis()
-        dao.insert(CategoryEntity(UUID.randomUUID().toString(), BudgetPlusDatabase.DEFAULT_WORKSPACE_ID, kind, customName = name.trim(), iconKey = iconKey, colorKey = colorKey, createdAt = now, updatedAt = now))
+    override suspend fun create(name: String, kind: CategoryKind, iconKey: String, colorKey: String): String {
+        require(FinanceValidator.isValidName(name)); val now = System.currentTimeMillis(); val id = UUID.randomUUID().toString()
+        dao.insert(CategoryEntity(id, BudgetPlusDatabase.DEFAULT_WORKSPACE_ID, kind, customName = name.trim(), iconKey = iconKey, colorKey = colorKey, createdAt = now, updatedAt = now))
+        return id
     }
     override suspend fun update(id: String, name: String, iconKey: String, colorKey: String) { require(FinanceValidator.isValidName(name)); require(dao.isSystem(id) == false); dao.update(id, name.trim(), iconKey, colorKey, System.currentTimeMillis()) }
-    override suspend fun createSubcategory(categoryId: String, name: String) { require(FinanceValidator.isValidName(name)); require(dao.kind(categoryId) != null); val now = System.currentTimeMillis(); dao.insertSubcategory(SubcategoryEntity(UUID.randomUUID().toString(), categoryId, customName = name.trim(), createdAt = now, updatedAt = now)) }
+    override suspend fun createSubcategory(categoryId: String, name: String): String { require(FinanceValidator.isValidName(name)); require(dao.kind(categoryId) != null); val now = System.currentTimeMillis(); val id = UUID.randomUUID().toString(); dao.insertSubcategory(SubcategoryEntity(id, categoryId, customName = name.trim(), createdAt = now, updatedAt = now)); return id }
     override suspend fun updateSubcategory(id: String, name: String) { require(FinanceValidator.isValidName(name)); require(dao.isSubcategorySystem(id) == false); dao.updateSubcategory(id, name.trim(), System.currentTimeMillis()) }
     override suspend fun setArchived(id: String, archived: Boolean, replacementId: String?) = db.withTransaction {
         require(dao.isSystem(id) == false); val usage = dao.usageCount(id); val now = System.currentTimeMillis()
@@ -71,11 +73,10 @@ class LocalTransactionRepository @Inject constructor(
     private val accounts: AccountDao,
     private val categories: CategoryDao,
 ) : TransactionRepository {
-    override fun observeTransactions(): Flow<List<FinanceTransaction>> = transactions.observeAll().map { rows -> rows.map {
-        FinanceTransaction(it.id, TransactionType.valueOf(it.type), it.amountMinor, it.currencyCode, it.accountId, it.accountName, it.destinationAccountId, it.destinationAccountName, it.categoryId, it.categoryNameKey, it.categoryCustomName, it.occurredAt, it.description, it.subcategoryId, it.subcategoryName)
-    } }
+    override fun observeTransactions(): Flow<List<FinanceTransaction>> = transactions.observeAll().map { rows -> rows.map(::toModel) }
+    override suspend fun get(id: String): FinanceTransaction? = transactions.getDetails(id)?.let(::toModel)
 
-    override suspend fun create(type: TransactionType, amountMinor: Long, accountId: String, destinationAccountId: String?, categoryId: String?, description: String, subcategoryId: String?, currencyCode: String) = db.withTransaction {
+    override suspend fun create(type: TransactionType, amountMinor: Long, accountId: String, destinationAccountId: String?, categoryId: String?, description: String, subcategoryId: String?, currencyCode: String, localDate: String?) = db.withTransaction {
         val categoryKind = categoryId?.let { categories.kind(it) }
         require(FinanceValidator.validateTransaction(type, amountMinor, accountId, destinationAccountId, categoryId, categoryKind, description))
         require(subcategoryId == null || categories.subcategoryParent(subcategoryId) == categoryId)
@@ -83,7 +84,25 @@ class LocalTransactionRepository @Inject constructor(
         if (destinationAccountId != null) require(accounts.exists(destinationAccountId))
         val now = System.currentTimeMillis()
         val zone = ZoneId.systemDefault()
-        transactions.insert(FinanceTransactionEntity(UUID.randomUUID().toString(), BudgetPlusDatabase.DEFAULT_WORKSPACE_ID, type, amountMinor, currencyCode, accountId, destinationAccountId, categoryId, subcategoryId, now, Instant.ofEpochMilli(now).atZone(zone).toLocalDate().toString(), zone.id, description.trim(), createdAt = now, updatedAt = now))
+        val date = localDate?.let(java.time.LocalDate::parse) ?: Instant.ofEpochMilli(now).atZone(zone).toLocalDate()
+        val occurredAt = if (localDate == null) now else date.atTime(Instant.ofEpochMilli(now).atZone(zone).toLocalTime()).atZone(zone).toInstant().toEpochMilli()
+        transactions.insert(FinanceTransactionEntity(UUID.randomUUID().toString(), BudgetPlusDatabase.DEFAULT_WORKSPACE_ID, type, amountMinor, currencyCode, accountId, destinationAccountId, categoryId, subcategoryId, occurredAt, date.toString(), zone.id, description.trim(), createdAt = now, updatedAt = now))
+    }
+    override suspend fun update(id: String, type: TransactionType, amountMinor: Long, accountId: String, destinationAccountId: String?, categoryId: String?, description: String, subcategoryId: String?, localDate: String) = db.withTransaction {
+        val existing = requireNotNull(transactions.getEntity(id))
+        val categoryKind = categoryId?.let { categories.kind(it) }
+        require(FinanceValidator.validateTransaction(type, amountMinor, accountId, destinationAccountId, categoryId, categoryKind, description))
+        require(accounts.exists(accountId))
+        val destination = destinationAccountId
+        if (destination != null) require(accounts.exists(destination))
+        val subcategory = subcategoryId
+        require(subcategory == null || categories.subcategoryParent(subcategory) == categoryId)
+        val date = java.time.LocalDate.parse(localDate)
+        val zone = ZoneId.of(existing.zoneId)
+        val localTime = Instant.ofEpochMilli(existing.occurredAt).atZone(zone).toLocalTime()
+        val occurredAt = date.atTime(localTime).atZone(zone).toInstant().toEpochMilli()
+        transactions.update(existing.copy(type = type, amountMinor = amountMinor, accountId = accountId, destinationAccountId = destination, categoryId = categoryId, subcategoryId = subcategory, occurredAt = occurredAt, localDate = date.toString(), description = description.trim(), updatedAt = System.currentTimeMillis()))
     }
     override suspend fun delete(id: String) = transactions.softDelete(id, System.currentTimeMillis())
+    private fun toModel(value: TransactionDetails) = FinanceTransaction(value.id, TransactionType.valueOf(value.type), value.amountMinor, value.currencyCode, value.accountId, value.accountName, value.destinationAccountId, value.destinationAccountName, value.categoryId, value.categoryNameKey, value.categoryCustomName, value.occurredAt, value.description, value.subcategoryId, value.subcategoryName, value.localDate, value.zoneId)
 }

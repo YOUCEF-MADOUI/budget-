@@ -52,4 +52,6 @@ data class FinanceTransaction(
     val description: String = "",
     val subcategoryId: String? = null,
     val subcategoryName: String? = null,
+    val localDate: String? = null,
+    val zoneId: String = "UTC",
 )
