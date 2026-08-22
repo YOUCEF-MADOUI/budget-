@@ -13,6 +13,7 @@ dependencies {
     implementation(project(":feature:transactions"))
     implementation(project(":feature:budgets"))
     implementation(project(":feature:recurring"))
+    implementation(project(":feature:analytics"))
     implementation(project(":data"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)

@@ -4,6 +4,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.budgetplusplus.database.dao.AccountDao
+import com.budgetplusplus.database.dao.AnalyticsDao
 import com.budgetplusplus.database.dao.CategoryDao
 import com.budgetplusplus.database.dao.BudgetDao
 import com.budgetplusplus.database.dao.DashboardDao
@@ -29,6 +30,7 @@ abstract class BudgetPlusDatabase : RoomDatabase() {
     abstract fun dashboardDao(): DashboardDao
     abstract fun budgetDao(): BudgetDao
     abstract fun recurringDao(): RecurringDao
+    abstract fun analyticsDao(): AnalyticsDao
 
     companion object {
         const val NAME = "budget_plus_plus.db"

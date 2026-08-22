@@ -19,6 +19,7 @@ import com.budgetplusplus.feature.accounts.AccountsScreen
 import com.budgetplusplus.feature.categories.CategoriesScreen
 import com.budgetplusplus.feature.budgets.BudgetsScreen
 import com.budgetplusplus.feature.recurring.RecurringScreen
+import com.budgetplusplus.feature.analytics.AnalyticsScreen
 import com.budgetplusplus.feature.dashboard.HomePlaceholderScreen
 import com.budgetplusplus.feature.onboarding.TechnicalWelcomeScreen
 import com.budgetplusplus.feature.transactions.TransactionsScreen
@@ -27,12 +28,13 @@ import com.budgetplusplus.feature.transactions.TransactionsScreen
 fun BudgetPlusPlusApp() {
     val navController = rememberNavController()
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
-    val mainRoutes = setOf(AppDestination.Home.route, AppDestination.Accounts.route, AppDestination.Transactions.route, AppDestination.Categories.route)
+    val mainRoutes = setOf(AppDestination.Home.route, AppDestination.Accounts.route, AppDestination.Transactions.route, AppDestination.Categories.route, AppDestination.Analytics.route)
     val items = listOf(
         BudgetNavigationItem(AppDestination.Home.route, stringResource(R.string.nav_home), BudgetIcons.Home),
         BudgetNavigationItem(AppDestination.Accounts.route, stringResource(R.string.nav_accounts), BudgetIcons.Account),
         BudgetNavigationItem(AppDestination.Transactions.route, stringResource(R.string.nav_transactions), BudgetIcons.Search),
         BudgetNavigationItem(AppDestination.Categories.route, stringResource(R.string.nav_categories), BudgetIcons.Category),
+        BudgetNavigationItem(AppDestination.Analytics.route, stringResource(R.string.nav_analytics), BudgetIcons.Search),
     )
 
     Scaffold(
@@ -82,6 +84,7 @@ fun BudgetPlusPlusApp() {
             composable(AppDestination.Transactions.route) { TransactionsScreen(onBack = null) }
             composable(AppDestination.Budgets.route) { BudgetsScreen(onBack = navController::navigateUp) }
             composable(AppDestination.Recurring.route) { RecurringScreen(onBack = navController::navigateUp) }
+            composable(AppDestination.Analytics.route) { AnalyticsScreen(onBack = null) }
             composable(AppDestination.DesignSystem.route) { DesignSystemDemoScreen(onBackClick = navController::navigateUp) }
         }
     }

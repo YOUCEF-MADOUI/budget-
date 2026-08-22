@@ -15,8 +15,9 @@ Budget++ est une application Android native de gestion budgétaire personnelle, 
 - **Phase 9 — Catégories avancées :** sous-catégories, icônes, couleurs, recherche et réaffectation transactionnelle sûre.
 - **Phase 10 — Budgets :** budgets globaux/par catégorie, périodes, seuils et suivi Room réactif avec historique.
 - **Phase 11 — Opérations récurrentes :** règles quotidiennes à annuelles, WorkManager, rattrapage et idempotence.
+- **Phase 12 — Analyse :** évolutions, comparaisons, moyennes et catégories principales via Room.
 
-Documentation : [Design System Budget++](docs/PHASE_3_DESIGN_SYSTEM.md) · [Base Room et premières fonctionnalités](docs/PHASE_4_FIRST_FEATURES.md) · [Domaine et boucle financière utilisable](docs/PHASE_5_USABLE_FINANCE_LOOP.md) · [Tableau de bord financier](docs/PHASE_8_DASHBOARD.md) · [Catégories avancées](docs/PHASE_9_CATEGORIES.md) · [Gestion des budgets](docs/PHASE_10_BUDGETS.md) · [Opérations récurrentes](docs/PHASE_11_RECURRING.md).
+Documentation : [Design System Budget++](docs/PHASE_3_DESIGN_SYSTEM.md) · [Base Room et premières fonctionnalités](docs/PHASE_4_FIRST_FEATURES.md) · [Domaine et boucle financière utilisable](docs/PHASE_5_USABLE_FINANCE_LOOP.md) · [Tableau de bord financier](docs/PHASE_8_DASHBOARD.md) · [Catégories avancées](docs/PHASE_9_CATEGORIES.md) · [Gestion des budgets](docs/PHASE_10_BUDGETS.md) · [Opérations récurrentes](docs/PHASE_11_RECURRING.md) · [Statistiques et analyses](docs/PHASE_12_ANALYTICS.md).
 
 ## Configuration Android
 

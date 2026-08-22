@@ -9,4 +9,5 @@ internal enum class AppDestination(val route: String) {
     Transactions("transactions"),
     Budgets("budgets"),
     Recurring("recurring"),
+    Analytics("analytics"),
 }

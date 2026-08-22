@@ -1,12 +1,14 @@
 package com.budgetplusplus.data
 
 import com.budgetplusplus.data.repository.LocalAccountRepository
+import com.budgetplusplus.data.repository.LocalAnalyticsRepository
 import com.budgetplusplus.data.repository.LocalBudgetRepository
 import com.budgetplusplus.data.repository.LocalCategoryRepository
 import com.budgetplusplus.data.repository.LocalDashboardRepository
 import com.budgetplusplus.data.repository.LocalTransactionRepository
 import com.budgetplusplus.data.repository.LocalRecurringRepository
 import com.budgetplusplus.domain.repository.AccountRepository
+import com.budgetplusplus.domain.repository.AnalyticsRepository
 import com.budgetplusplus.domain.repository.BudgetRepository
 import com.budgetplusplus.domain.repository.CategoryRepository
 import com.budgetplusplus.domain.repository.DashboardRepository
@@ -21,6 +23,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class DataModule {
+    @Binds @Singleton abstract fun analytics(implementation: LocalAnalyticsRepository): AnalyticsRepository
     @Binds @Singleton abstract fun accounts(implementation: LocalAccountRepository): AccountRepository
     @Binds @Singleton abstract fun budgets(implementation: LocalBudgetRepository): BudgetRepository
     @Binds @Singleton abstract fun categories(implementation: LocalCategoryRepository): CategoryRepository

@@ -50,4 +50,5 @@ object DatabaseModule {
     @Provides fun dashboard(db: BudgetPlusDatabase) = db.dashboardDao()
     @Provides fun budgets(db: BudgetPlusDatabase) = db.budgetDao()
     @Provides fun recurring(db: BudgetPlusDatabase) = db.recurringDao()
+    @Provides fun analytics(db: BudgetPlusDatabase) = db.analyticsDao()
 }
