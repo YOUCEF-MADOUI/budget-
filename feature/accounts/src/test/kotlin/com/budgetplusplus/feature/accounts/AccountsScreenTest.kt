@@ -7,6 +7,7 @@ import com.budgetplusplus.core.model.*
 import com.budgetplusplus.domain.repository.AccountRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import org.junit.*
 import org.junit.Assert.assertEquals
 import org.junit.runner.RunWith
