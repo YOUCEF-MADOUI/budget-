@@ -50,7 +50,33 @@ import kotlinx.coroutines.launch
  if(confirm)BudgetConfirmationDialog(stringResource(R.string.transaction_editor_confirm_title),stringResource(R.string.transaction_editor_confirm_message),{confirm=false;save(initial?.id,type,parsed!!,account,destination,category,subcategory,date,description)},{confirm=false},confirmText=stringResource(R.string.transaction_editor_confirm))
 }
 
-@Composable private fun QuickCategoryDialog(kind:CategoryKind,dismiss:()->Unit,create:(String,CategoryKind,String,String,String)->Unit){var name by remember{mutableStateOf("")};var sub by remember{mutableStateOf("")};var icon by remember{mutableStateOf("category")};var color by remember{mutableStateOf("primary")};val icons=listOf("category","home","account");val colors=listOf("primary","green","orange","blue");AlertDialog(onDismissRequest=dismiss,title={Text(stringResource(R.string.transaction_editor_quick_title))},text={LazyColumn(verticalArrangement=Arrangement.spacedBy(10.dp)){item{BudgetTextField(name,{name=it},stringResource(R.string.transaction_editor_category_name))};item{Text(stringResource(R.string.transaction_editor_icon));LazyRow{items(icons){value->FilterChip(icon==value,{icon=value},{Icon(when(value){"home"->BudgetIcons.Home;"account"->BudgetIcons.Account;else->BudgetIcons.Category},contentDescription=quickIconLabel(value))},Modifier.padding(end=6.dp))}}};item{Text(stringResource(R.string.transaction_editor_color));LazyRow{items(colors){value->FilterChip(color==value,{color=value},{Box(Modifier.size(24.dp).background(quickColor(value),CircleShape).semantics{contentDescription=quickColorLabel(value)})},Modifier.padding(end=6.dp))}}};item{BudgetTextField(sub,{sub=it},stringResource(R.string.transaction_editor_optional_subcategory))}}},confirmButton={TextButton({create(name.trim(),kind,icon,color,sub.trim())},enabled=name.isNotBlank()&&name.length<=60){Text(stringResource(R.string.transaction_editor_create_select))}},dismissButton={TextButton(dismiss){Text(stringResource(R.string.transaction_editor_cancel))}})}
+@Composable
+private fun QuickCategoryDialog(kind: CategoryKind, dismiss: () -> Unit, create: (String, CategoryKind, String, String, String) -> Unit) {
+    var name by remember { mutableStateOf("") }
+    var subcategory by remember { mutableStateOf("") }
+    var icon by remember { mutableStateOf("category") }
+    var color by remember { mutableStateOf("primary") }
+    val icons = listOf("category", "home", "account")
+    val colors = listOf("primary", "green", "orange", "blue")
+    AlertDialog(
+        onDismissRequest = dismiss,
+        title = { Text(stringResource(R.string.transaction_editor_quick_title)) },
+        text = { LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            item { BudgetTextField(name, { name = it }, stringResource(R.string.transaction_editor_category_name)) }
+            item { Text(stringResource(R.string.transaction_editor_icon)); LazyRow { items(icons) { value ->
+                val description = quickIconLabel(value)
+                FilterChip(icon == value, { icon = value }, { Icon(when(value) { "home" -> BudgetIcons.Home; "account" -> BudgetIcons.Account; else -> BudgetIcons.Category }, contentDescription = description) }, Modifier.padding(end = 6.dp))
+            } } }
+            item { Text(stringResource(R.string.transaction_editor_color)); LazyRow { items(colors) { value ->
+                val description = quickColorLabel(value)
+                FilterChip(color == value, { color = value }, { Box(Modifier.size(24.dp).background(quickColor(value), CircleShape).semantics { contentDescription = description }) }, Modifier.padding(end = 6.dp))
+            } } }
+            item { BudgetTextField(subcategory, { subcategory = it }, stringResource(R.string.transaction_editor_optional_subcategory)) }
+        } },
+        confirmButton = { TextButton({ create(name.trim(), kind, icon, color, subcategory.trim()) }, enabled = name.isNotBlank() && name.length <= 60) { Text(stringResource(R.string.transaction_editor_create_select)) } },
+        dismissButton = { TextButton(dismiss) { Text(stringResource(R.string.transaction_editor_cancel)) } },
+    )
+}
 @Composable private fun <T> EditorSelector(label:String,values:List<T>,selected:String?,id:(T)->String,text: @Composable (T) -> String,choose:(T)->Unit){var open by remember{mutableStateOf(false)};val current=values.firstOrNull{id(it)==selected};Box{OutlinedButton({open=true},Modifier.fillMaxWidth(),enabled=values.isNotEmpty()){Text(current?.let{text(it)}?:label)};DropdownMenu(open,{open=false}){values.forEach{value->DropdownMenuItem({Text(text(value))},{choose(value);open=false})}}}}
 @Composable private fun editorType(value:TransactionType)=stringResource(when(value){TransactionType.EXPENSE->R.string.transaction_expense;TransactionType.INCOME->R.string.transaction_income;TransactionType.TRANSFER->R.string.transaction_transfer})
 @Composable private fun editorCategory(value:Category)=value.customName?:stringResource(R.string.transaction_other)
