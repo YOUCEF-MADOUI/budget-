@@ -35,3 +35,9 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
+
+// A release-candidate build must prove that both the installable debug APK and
+// the unsigned release bundle can be packaged. Signing remains external to Git.
+tasks.named("assembleDebug") {
+    dependsOn("bundleRelease")
+}

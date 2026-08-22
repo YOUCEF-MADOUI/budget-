@@ -5,6 +5,7 @@ import androidx.room.Room
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.sqlite.db.SupportSQLiteOpenHelper
+import androidx.room.migration.Migration
 import androidx.test.core.app.ApplicationProvider
 import org.junit.*
 import org.junit.Assert.assertEquals
@@ -18,11 +19,26 @@ class FullMigrationTest {
  private val context:Context=ApplicationProvider.getApplicationContext<Context>();private val name="migration-chain.db"
  @Before fun clean(){context.deleteDatabase(name)}
  @After fun after(){context.deleteDatabase(name)}
- @Test fun `migrates a populated schema from version one through six`(){
-  val config=SupportSQLiteOpenHelper.Configuration.builder(context).name(name).callback(object:SupportSQLiteOpenHelper.Callback(1){override fun onCreate(db:SupportSQLiteDatabase){createV1(db);db.execSQL("INSERT INTO workspaces VALUES ('w','Legacy','PERSONAL','DZD',1,1,1,NULL)");db.execSQL("INSERT INTO accounts VALUES ('a','w','Cash','CASH','DZD',1000,'primary','account',0,0,0,1,1,NULL)")}override fun onUpgrade(db:SupportSQLiteDatabase,oldVersion:Int,newVersion:Int)=Unit}).build()
-  FrameworkSQLiteOpenHelperFactory().create(config).also{it.writableDatabase;it.close()}
-  val migrated=Room.databaseBuilder(context,BudgetPlusDatabase::class.java,name).allowMainThreadQueries().addMigrations(MIGRATION_1_2,MIGRATION_2_3,MIGRATION_3_4,MIGRATION_4_5,MIGRATION_5_6,MIGRATION_6_7,MIGRATION_7_8,MIGRATION_8_9,MIGRATION_9_10,MIGRATION_10_11).build();assertEquals(11,migrated.openHelper.writableDatabase.version);assertTrue(table(migrated.openHelper.writableDatabase,"subcategories"));assertTrue(table(migrated.openHelper.writableDatabase,"budgets"));assertTrue(table(migrated.openHelper.writableDatabase,"recurring_transactions"));assertTrue(table(migrated.openHelper.writableDatabase,"finance_transactions_fts"));assertTrue(table(migrated.openHelper.writableDatabase,"future_payments"));assertTrue(table(migrated.openHelper.writableDatabase,"due_payments"));assertTrue(table(migrated.openHelper.writableDatabase,"favorites"));assertTrue(table(migrated.openHelper.writableDatabase,"media_assets"));migrated.close()
+ private val migrations:List<Migration> = listOf(MIGRATION_1_2,MIGRATION_2_3,MIGRATION_3_4,MIGRATION_4_5,MIGRATION_5_6,MIGRATION_6_7,MIGRATION_7_8,MIGRATION_8_9,MIGRATION_9_10,MIGRATION_10_11)
+ @Test fun `migrates a populated schema from version one through eleven`(){
+  createLegacyDatabase()
+  val migrated=openCurrentDatabase();assertEquals(11,migrated.openHelper.writableDatabase.version);assertTrue(table(migrated.openHelper.writableDatabase,"subcategories"));assertTrue(table(migrated.openHelper.writableDatabase,"budgets"));assertTrue(table(migrated.openHelper.writableDatabase,"recurring_transactions"));assertTrue(table(migrated.openHelper.writableDatabase,"finance_transactions_fts"));assertTrue(table(migrated.openHelper.writableDatabase,"future_payments"));assertTrue(table(migrated.openHelper.writableDatabase,"due_payments"));assertTrue(table(migrated.openHelper.writableDatabase,"favorites"));assertTrue(table(migrated.openHelper.writableDatabase,"media_assets"));assertLegacyData(migrated.openHelper.writableDatabase);migrated.close()
  }
+ @Test fun `every historical schema version has a non destructive path to eleven`(){
+  for(startVersion in 1..10){
+   context.deleteDatabase(name);createLegacyDatabase()
+   if(startVersion>1){
+    val helper=FrameworkSQLiteOpenHelperFactory().create(SupportSQLiteOpenHelper.Configuration.builder(context).name(name).callback(object:SupportSQLiteOpenHelper.Callback(1){override fun onCreate(db:SupportSQLiteDatabase)=Unit;override fun onUpgrade(db:SupportSQLiteDatabase,oldVersion:Int,newVersion:Int)=Unit}).build())
+    val db=helper.writableDatabase
+    migrations.take(startVersion-1).forEach{migration->migration.migrate(db);db.version=migration.endVersion}
+    helper.close()
+   }
+   val migrated=openCurrentDatabase();assertEquals("Failed from schema $startVersion",11,migrated.openHelper.writableDatabase.version);assertLegacyData(migrated.openHelper.writableDatabase);migrated.close()
+  }
+ }
+ private fun createLegacyDatabase(){val config=SupportSQLiteOpenHelper.Configuration.builder(context).name(name).callback(object:SupportSQLiteOpenHelper.Callback(1){override fun onCreate(db:SupportSQLiteDatabase){createV1(db);db.execSQL("INSERT INTO workspaces VALUES ('w','Legacy','PERSONAL','DZD',1,1,1,NULL)");db.execSQL("INSERT INTO accounts VALUES ('a','w','Cash','CASH','DZD',1000,'primary','account',0,0,0,1,1,NULL)")}override fun onUpgrade(db:SupportSQLiteDatabase,oldVersion:Int,newVersion:Int)=Unit}).build();FrameworkSQLiteOpenHelperFactory().create(config).also{it.writableDatabase;it.close()}}
+ private fun openCurrentDatabase()=Room.databaseBuilder(context,BudgetPlusDatabase::class.java,name).allowMainThreadQueries().addMigrations(*migrations.toTypedArray()).build()
+ private fun assertLegacyData(db:SupportSQLiteDatabase){db.query("SELECT name,initial_balance_minor FROM accounts WHERE id='a'").use{assertTrue(it.moveToFirst());assertEquals("Cash",it.getString(0));assertEquals(1000L,it.getLong(1))}}
  private fun table(db:SupportSQLiteDatabase,name:String)=db.query("SELECT 1 FROM sqlite_master WHERE name=?",arrayOf(name)).use{it.moveToFirst()}
  private fun createV1(db:SupportSQLiteDatabase){
   db.execSQL("CREATE TABLE workspaces(id TEXT NOT NULL PRIMARY KEY,name TEXT NOT NULL,kind TEXT NOT NULL,currency_code TEXT NOT NULL,is_active INTEGER NOT NULL,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL,deleted_at INTEGER)")

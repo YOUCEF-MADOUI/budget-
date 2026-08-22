@@ -10,5 +10,8 @@ captures/
 .DS_Store
 *.jks
 *.keystore
+*.p12
+*.pfx
 keystore.properties
+signing.properties
 secrets.properties

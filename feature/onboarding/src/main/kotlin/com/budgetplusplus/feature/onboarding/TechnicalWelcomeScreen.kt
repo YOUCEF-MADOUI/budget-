@@ -1,5 +1,7 @@
 package com.budgetplusplus.feature.onboarding
 
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -16,6 +20,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -27,13 +33,15 @@ import androidx.compose.ui.unit.dp
 fun TechnicalWelcomeScreen(
     onStartClick: () -> Unit,
     modifier: Modifier = Modifier,
+    @DrawableRes brandIconRes: Int? = null,
 ) {
     val brandDescription = stringResource(R.string.technical_brand_description)
 
     Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 24.dp),
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 24.dp, vertical = 32.dp),
         contentAlignment = Alignment.Center,
     ) {
         Column(
@@ -42,20 +50,27 @@ fun TechnicalWelcomeScreen(
         ) {
             Surface(
                 modifier = Modifier
-                    .size(96.dp)
-                    .semantics {
-                        contentDescription = brandDescription
-                    },
-                shape = MaterialTheme.shapes.large,
+                    .size(112.dp)
+                    .semantics { contentDescription = brandDescription },
+                shape = MaterialTheme.shapes.extraLarge,
                 color = MaterialTheme.colorScheme.primaryContainer,
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text(
-                        text = stringResource(R.string.technical_brand_monogram),
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                if (brandIconRes != null) {
+                    Image(
+                        painter = painterResource(brandIconRes),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
                     )
+                } else {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            text = stringResource(R.string.technical_brand_monogram),
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        )
+                    }
                 }
             }
             Spacer(Modifier.height(32.dp))

@@ -35,8 +35,7 @@ import java.util.Date
 import kotlin.math.max
 
 @Composable
-fun HomePlaceholderScreen(
-    onDesignSystemClick: () -> Unit,
+fun DashboardScreen(
     onAccountsClick: () -> Unit,
     onCategoriesClick: () -> Unit,
     onTransactionsClick: () -> Unit,
@@ -60,7 +59,6 @@ fun HomePlaceholderScreen(
             DropdownMenuItem({ Text(stringResource(R.string.home_backup)) }, { showMenu = false; onBackupClick() })
             DropdownMenuItem({ Text(stringResource(R.string.home_security)) }, { showMenu = false; onSecurityClick() })
             DropdownMenuItem({ Text(stringResource(R.string.home_future_payments)) }, { showMenu = false; onFuturePaymentsClick() })
-            DropdownMenuItem({ Text(stringResource(R.string.technical_open_design_system)) }, { showMenu = false; onDesignSystemClick() })
         } } },
         modifier = modifier,
     ) { padding ->

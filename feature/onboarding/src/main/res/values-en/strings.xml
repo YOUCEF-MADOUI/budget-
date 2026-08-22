@@ -1,8 +1,8 @@
 <resources>
     <string name="technical_brand_monogram">B++</string>
-    <string name="technical_brand_description">Temporary Budget++ monogram</string>
+    <string name="technical_brand_description">Budget++ visual identity</string>
     <string name="technical_welcome_title">Budget++</string>
     <string name="technical_welcome_subtitle">Your money, made clearer.</string>
-    <string name="technical_initialization_success">Android project initialized successfully</string>
+    <string name="technical_initialization_success">Your data stays private and available offline</string>
     <string name="technical_start">Get started</string>
 </resources>

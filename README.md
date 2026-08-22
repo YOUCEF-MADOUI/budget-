@@ -26,8 +26,9 @@ Budget++ est une application Android native de gestion budgétaire personnelle, 
 - **Phase 19 — Comptes hiérarchiques :** profondeur libre, soldes consolidés, cycles bloqués et réaffectation sûre des branches.
 - **Phase 20 — Échéances :** dépenses futures, paiements partiels idempotents, annulation et rappels locaux.
 - **Phase 21 — Favoris et médias :** photos privées WebP, icônes localisées, quantités exactes et clics rapides idempotents.
+- **Phase 22 — Budget++ 1.0 :** identité officielle adaptative et monochrome, finition release, validation intégrale et procédure de signature sécurisée.
 
-Documentation : [Design System Budget++](docs/PHASE_3_DESIGN_SYSTEM.md) · [Base Room et premières fonctionnalités](docs/PHASE_4_FIRST_FEATURES.md) · [Domaine et boucle financière utilisable](docs/PHASE_5_USABLE_FINANCE_LOOP.md) · [Tableau de bord financier](docs/PHASE_8_DASHBOARD.md) · [Catégories avancées](docs/PHASE_9_CATEGORIES.md) · [Gestion des budgets](docs/PHASE_10_BUDGETS.md) · [Opérations récurrentes](docs/PHASE_11_RECURRING.md) · [Statistiques et analyses](docs/PHASE_12_ANALYTICS.md) · [Recherche et filtres avancés](docs/PHASE_13_SEARCH.md) · [Sauvegarde, restauration et export](docs/PHASE_14_BACKUP_EXPORT.md) · [Sécurité de l’application](docs/PHASE_15_SECURITY.md) · [Tests et assurance qualité](docs/PHASE_16_QUALITY_ASSURANCE.md) · [Optimisation, performances et accessibilité](docs/PHASE_17_OPTIMIZATION.md) · [Modification des opérations](docs/PHASE_17_TRANSACTION_EDITING.md) · [Détail des comptes et réaffectation](docs/PHASE_18_ACCOUNT_DETAILS.md) · [Comptes hiérarchiques](docs/PHASE_19_HIERARCHICAL_ACCOUNTS.md) · [Échéances et paiements futurs](docs/PHASE_20_FUTURE_PAYMENTS.md) · [Favoris, médias et opérations rapides](docs/PHASE_21_FAVORITES_AND_MEDIA.md).
+Documentation : [Design System Budget++](docs/PHASE_3_DESIGN_SYSTEM.md) · [Base Room et premières fonctionnalités](docs/PHASE_4_FIRST_FEATURES.md) · [Domaine et boucle financière utilisable](docs/PHASE_5_USABLE_FINANCE_LOOP.md) · [Tableau de bord financier](docs/PHASE_8_DASHBOARD.md) · [Catégories avancées](docs/PHASE_9_CATEGORIES.md) · [Gestion des budgets](docs/PHASE_10_BUDGETS.md) · [Opérations récurrentes](docs/PHASE_11_RECURRING.md) · [Statistiques et analyses](docs/PHASE_12_ANALYTICS.md) · [Recherche et filtres avancés](docs/PHASE_13_SEARCH.md) · [Sauvegarde, restauration et export](docs/PHASE_14_BACKUP_EXPORT.md) · [Sécurité de l’application](docs/PHASE_15_SECURITY.md) · [Tests et assurance qualité](docs/PHASE_16_QUALITY_ASSURANCE.md) · [Optimisation, performances et accessibilité](docs/PHASE_17_OPTIMIZATION.md) · [Modification des opérations](docs/PHASE_17_TRANSACTION_EDITING.md) · [Détail des comptes et réaffectation](docs/PHASE_18_ACCOUNT_DETAILS.md) · [Comptes hiérarchiques](docs/PHASE_19_HIERARCHICAL_ACCOUNTS.md) · [Échéances et paiements futurs](docs/PHASE_20_FUTURE_PAYMENTS.md) · [Favoris, médias et opérations rapides](docs/PHASE_21_FAVORITES_AND_MEDIA.md) · [Finalisation Budget++ 1.0](docs/PHASE_22_RELEASE_1_0.md).
 
 ## Configuration Android
 
@@ -37,8 +38,8 @@ Documentation : [Design System Budget++](docs/PHASE_3_DESIGN_SYSTEM.md) · [Base
 | `compileSdk` | 36 | API Android stable compatible avec la chaîne AGP retenue |
 | `targetSdk` | 36 | Comportements de confidentialité et de sécurité Android actuels |
 | Java | 17 | Version requise et supportée par Android Gradle Plugin |
-| Application ID | `com.budgetplusplus.app` | Identifiant provisoire centralisé dans le convention plugin |
-| Version | `1 / 0.1.0` | Première version de développement, pas une V1 publique |
+| Application ID | `com.budgetplusplus.app` | Identifiant stable centralisé dans le convention plugin |
+| Version | `10000 / 1.0.0` | Première version stable Budget++ |
 
 ## Prérequis
 
@@ -54,38 +55,44 @@ Le Gradle Wrapper fourni est la seule installation Gradle requise.
 Depuis la racine du dépôt :
 
 ```bash
-./gradlew projects
-./gradlew assembleDebug
-./gradlew test
+./gradlew projects --stacktrace
+./gradlew clean assembleDebug --stacktrace
+./gradlew lint staticAnalysis test --stacktrace
 ```
 
-L'APK de développement est produit dans `app/build/outputs/apk/debug/`. Le variant debug utilise l'identifiant `com.budgetplusplus.app.debug` afin de pouvoir cohabiter avec une future version de production.
+`assembleDebug` valide également `bundleRelease`. Les sorties sont :
 
-Pour installer sur un appareil ou émulateur connecté :
+- APK de test installable : `app/build/outputs/apk/debug/app-debug.apk` ;
+- AAB release non signé : `app/build/outputs/bundle/release/app-release.aab`.
+
+Le variant debug utilise l'identifiant `com.budgetplusplus.app.debug`, afin de cohabiter avec la version de production. Pour installer et lancer sur un appareil ou émulateur connecté :
 
 ```bash
 ./gradlew installDebug
+adb shell monkey -p com.budgetplusplus.app.debug -c android.intent.category.LAUNCHER 1
 ```
+
+Parcours manuel recommandé : compte parent/enfant, soldes propre/consolidé, dépense/revenu/transfert, modification, budget, échéance et paiements partiels, récurrence, favori avec plusieurs clics, photo, statistiques/recherche, sauvegarde/restauration, PIN et biométrie. Vérifier ensuite FR/EN/AR RTL, clair/sombre, petit écran, tablette et grandes polices. Voir le [dossier de release 1.0](docs/PHASE_22_RELEASE_1_0.md) pour la signature sécurisée et la checklist complète.
 
 ## Architecture des modules
 
 ```text
 :app                         point d'entrée, Hilt et navigation racine
-├── :feature:onboarding      écran de validation technique / futur onboarding
-├── :feature:dashboard       destination temporaire / futur dashboard
+├── :feature:onboarding      accueil localisé et identité officielle
+├── :feature:dashboard       tableau de bord financier
 ├── :feature:accounts        comptes et soldes locaux
 ├── :feature:categories      catégories système/personnalisées
 ├── :feature:transactions    dépenses, revenus et transferts
 ├── :feature:*               frontières UI des fonctionnalités suivantes
 ├── :core:designsystem       thème Compose clair/sombre minimal
-├── :core:ui                 composants UI partagés futurs
-├── :data                    implémentations des repositories locaux, DataStore et workers futurs
+├── :core:ui                 composants UI partagés et médias
+├── :data                    repositories locaux, DataStore, sauvegarde et workers
 ├── :database                base Room/KSP, entités, DAO et schémas versionnés
 ├── :domain                  règles métier Kotlin pur
 ├── :core:model              modèles partagés
 ├── :core:common             infrastructure Kotlin commune
-├── :core:security           frontière Keystore/verrouillage future
-└── :core:testing            fakes et fixtures partagés futurs
+├── :core:security           contrats Keystore et verrouillage
+└── :core:testing            fakes et fixtures partagés
 ```
 
 Les features dépendent uniquement des modules core autorisés. Les modules core ne dépendent d'aucune feature. Les modules volontairement vides matérialisent une frontière d'architecture sans introduire prématurément des modèles métier.
@@ -108,7 +115,7 @@ Ils centralisent les SDK, Java/Kotlin 17, Compose, namespaces, tests et traiteme
 
 ## Première application
 
-Le lancement affiche un écran Budget++ localisé en français, anglais et arabe. Le bouton **Commencer** ouvre un écran technique depuis lequel le catalogue interne du Design System est accessible. Ce catalogue permet de vérifier palette, typographie, composants, thèmes clair/sombre, RTL et données financières fictives. Ces destinations seront retirées de la navigation utilisateur avant publication.
+Le lancement affiche l'identité officielle Budget++ et un accueil localisé en français, anglais et arabe. Le bouton **Commencer** ouvre le tableau de bord financier. Le catalogue interne du Design System reste disponible dans le code pour les tests de composants, mais n'est plus exposé dans la navigation de production.
 
 ## Confidentialité et secrets
 
@@ -121,6 +128,6 @@ Le lancement affiche un écran Budget++ localisé en français, anglais et arabe
 
 `.github/workflows/android.yml` valide le wrapper, liste les projets, construit l'application debug et exécute les tests unitaires sur chaque pull request vers `main` et sur les branches suivies.
 
-## Prochaine phase
+## Publication
 
-**Phase 4 — Base Room** : entités, relations, DAO, index, convertisseurs, migrations et tests de base conformément au modèle validé, sans coupler la persistance aux composants UI.
+Budget++ est préparé en version `1.0.0`. La signature de production, le test sur appareil physique et la validation via Play Internal Testing restent volontairement externes au dépôt : aucun keystore ni secret de publication n'est versionné.

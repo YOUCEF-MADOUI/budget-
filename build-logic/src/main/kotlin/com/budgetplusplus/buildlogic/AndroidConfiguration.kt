@@ -24,8 +24,8 @@ internal fun Project.configureAndroidApplication() {
             applicationId = "com.budgetplusplus.app"
             minSdk = MIN_SDK
             targetSdk = TARGET_SDK
-            versionCode = 1
-            versionName = "0.1.0"
+            versionCode = 10_000
+            versionName = "1.0.0"
             testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         }
 

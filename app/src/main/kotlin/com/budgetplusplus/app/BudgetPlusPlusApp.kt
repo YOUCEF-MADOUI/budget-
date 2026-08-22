@@ -13,7 +13,6 @@ import androidx.navigation.compose.rememberNavController
 import com.budgetplusplus.app.navigation.AppDestination
 import com.budgetplusplus.core.designsystem.components.BudgetBottomNavigation
 import com.budgetplusplus.core.designsystem.components.BudgetNavigationItem
-import com.budgetplusplus.core.designsystem.demo.DesignSystemDemoScreen
 import com.budgetplusplus.core.designsystem.icons.BudgetIcons
 import com.budgetplusplus.feature.accounts.AccountsScreen
 import com.budgetplusplus.feature.accounts.AccountDetailScreen
@@ -26,7 +25,7 @@ import com.budgetplusplus.feature.backup.BackupScreen
 import com.budgetplusplus.feature.security.SecuritySettingsScreen
 import com.budgetplusplus.feature.futurepayments.FuturePaymentsScreen
 import com.budgetplusplus.feature.favorites.FavoritesScreen
-import com.budgetplusplus.feature.dashboard.HomePlaceholderScreen
+import com.budgetplusplus.feature.dashboard.DashboardScreen
 import com.budgetplusplus.feature.onboarding.TechnicalWelcomeScreen
 import com.budgetplusplus.feature.transactions.TransactionsScreen
 import com.budgetplusplus.feature.transactions.TransactionEditorScreen
@@ -68,6 +67,7 @@ fun BudgetPlusPlusApp() {
         ) {
             composable(AppDestination.Welcome.route) {
                 TechnicalWelcomeScreen(
+                    brandIconRes = R.mipmap.ic_launcher,
                     onStartClick = {
                         navController.navigate(AppDestination.Home.route) {
                             popUpTo(AppDestination.Welcome.route) { inclusive = true }
@@ -77,8 +77,7 @@ fun BudgetPlusPlusApp() {
                 )
             }
             composable(AppDestination.Home.route) {
-                HomePlaceholderScreen(
-                    onDesignSystemClick = { navController.navigate(AppDestination.DesignSystem.route) },
+                DashboardScreen(
                     onAccountsClick = { navController.navigate(AppDestination.Accounts.route) },
                     onCategoriesClick = { navController.navigate(AppDestination.Categories.route) },
                     onTransactionsClick = { navController.navigate(AppDestination.Transactions.route) },
@@ -104,7 +103,6 @@ fun BudgetPlusPlusApp() {
             composable(AppDestination.Security.route) { SecuritySettingsScreen(onBack = navController::navigateUp) }
             composable(AppDestination.FuturePayments.route) { FuturePaymentsScreen(onBack = navController::navigateUp) }
             composable(AppDestination.Favorites.route) { FavoritesScreen(onBack = navController::navigateUp) }
-            composable(AppDestination.DesignSystem.route) { DesignSystemDemoScreen(onBackClick = navController::navigateUp) }
         }
     }
 }
