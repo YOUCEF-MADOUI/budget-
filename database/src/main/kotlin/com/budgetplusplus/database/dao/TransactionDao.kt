@@ -24,7 +24,7 @@ interface TransactionDao {
       FROM finance_transactions t JOIN accounts a ON a.id = t.account_id
       LEFT JOIN accounts da ON da.id = t.destination_account_id LEFT JOIN categories c ON c.id = t.category_id
       LEFT JOIN subcategories s ON s.id = t.subcategory_id
-      WHERE t.deleted_at IS NULL ORDER BY t.occurred_at DESC""")
+      WHERE t.deleted_at IS NULL ORDER BY t.occurred_at DESC LIMIT 500""")
     fun observeAll(): Flow<List<TransactionDetails>>
     @Insert suspend fun insert(entity: FinanceTransactionEntity)
     @Query("UPDATE finance_transactions SET deleted_at = :now, updated_at = :now WHERE id = :id") suspend fun softDelete(id: String, now: Long)

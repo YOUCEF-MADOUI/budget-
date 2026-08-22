@@ -1,7 +1,7 @@
 package com.budgetplusplus.core.designsystem.components
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -13,6 +13,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import com.budgetplusplus.core.designsystem.R
@@ -26,13 +28,13 @@ fun BudgetTopAppBar(
     onMoreClick: (() -> Unit)? = null,
 ) {
     CenterAlignedTopAppBar(
-        title = { Text(title) },
+        title = { Text(title, modifier = Modifier.semantics { heading() }) },
         modifier = modifier,
         navigationIcon = {
             if (onBackClick != null) {
                 IconButton(onClick = onBackClick) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = stringResource(R.string.ds_back),
                     )
                 }

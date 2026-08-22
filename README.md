@@ -19,9 +19,10 @@ Budget++ est une application Android native de gestion budgétaire personnelle, 
 - **Phase 13 — Recherche :** filtres combinés, FTS Unicode et pagination keyset conçue pour 100 000 opérations.
 - **Phase 14 — Sauvegarde/export :** archives AES-GCM versionnées, restauration atomique et exports CSV UTF-8 via SAF.
 - **Phase 15 — Sécurité :** PIN Keystore, biométrie, verrouillage de cycle de vie, limitation et FLAG_SECURE.
-- **Phase 16 — Assurance qualité :** domaine, Room 1→6, repositories, UI Compose, locales, accessibilité, Lint et analyse statique.
+- **Phase 16 — Assurance qualité :** domaine, Room 1→7, repositories, UI Compose, locales, accessibilité, Lint et analyse statique.
+- **Phase 17 — Optimisation :** charges 10k/50k/100k, index keyset, mémoire bornée, cache monétaire, taille APK et audit RTL.
 
-Documentation : [Design System Budget++](docs/PHASE_3_DESIGN_SYSTEM.md) · [Base Room et premières fonctionnalités](docs/PHASE_4_FIRST_FEATURES.md) · [Domaine et boucle financière utilisable](docs/PHASE_5_USABLE_FINANCE_LOOP.md) · [Tableau de bord financier](docs/PHASE_8_DASHBOARD.md) · [Catégories avancées](docs/PHASE_9_CATEGORIES.md) · [Gestion des budgets](docs/PHASE_10_BUDGETS.md) · [Opérations récurrentes](docs/PHASE_11_RECURRING.md) · [Statistiques et analyses](docs/PHASE_12_ANALYTICS.md) · [Recherche et filtres avancés](docs/PHASE_13_SEARCH.md) · [Sauvegarde, restauration et export](docs/PHASE_14_BACKUP_EXPORT.md) · [Sécurité de l’application](docs/PHASE_15_SECURITY.md) · [Tests et assurance qualité](docs/PHASE_16_QUALITY_ASSURANCE.md).
+Documentation : [Design System Budget++](docs/PHASE_3_DESIGN_SYSTEM.md) · [Base Room et premières fonctionnalités](docs/PHASE_4_FIRST_FEATURES.md) · [Domaine et boucle financière utilisable](docs/PHASE_5_USABLE_FINANCE_LOOP.md) · [Tableau de bord financier](docs/PHASE_8_DASHBOARD.md) · [Catégories avancées](docs/PHASE_9_CATEGORIES.md) · [Gestion des budgets](docs/PHASE_10_BUDGETS.md) · [Opérations récurrentes](docs/PHASE_11_RECURRING.md) · [Statistiques et analyses](docs/PHASE_12_ANALYTICS.md) · [Recherche et filtres avancés](docs/PHASE_13_SEARCH.md) · [Sauvegarde, restauration et export](docs/PHASE_14_BACKUP_EXPORT.md) · [Sécurité de l’application](docs/PHASE_15_SECURITY.md) · [Tests et assurance qualité](docs/PHASE_16_QUALITY_ASSURANCE.md) · [Optimisation, performances et accessibilité](docs/PHASE_17_OPTIMIZATION.md).
 
 ## Configuration Android
 

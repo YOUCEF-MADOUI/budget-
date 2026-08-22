@@ -12,3 +12,7 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.kotlinx.coroutines.test)
 }
+
+tasks.matching { it.name == "testReleaseUnitTest" }.configureEach {
+    (this as org.gradle.api.tasks.testing.Test).exclude("**/PerformanceScaleTest*")
+}

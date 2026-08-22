@@ -69,3 +69,5 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
 }
 
 val MIGRATION_5_6 = object : Migration(5,6){override fun migrate(db:SupportSQLiteDatabase){createSearchInfrastructure(db);db.execSQL("CREATE INDEX IF NOT EXISTS index_finance_transactions_amount_minor_occurred_at_deleted_at ON finance_transactions(amount_minor,occurred_at,deleted_at)")}}
+
+val MIGRATION_6_7 = object : Migration(6,7){override fun migrate(db:SupportSQLiteDatabase){db.execSQL("CREATE INDEX IF NOT EXISTS index_finance_transactions_deleted_at_occurred_at_id ON finance_transactions(deleted_at,occurred_at,id)");db.execSQL("CREATE INDEX IF NOT EXISTS index_finance_transactions_deleted_at_amount_minor_id ON finance_transactions(deleted_at,amount_minor,id)");db.execSQL("CREATE INDEX IF NOT EXISTS index_finance_transactions_deleted_at_local_date_type_category_id ON finance_transactions(deleted_at,local_date,type,category_id)")}}

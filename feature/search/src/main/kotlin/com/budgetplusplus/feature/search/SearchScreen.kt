@@ -34,7 +34,7 @@ data class ResultState(val items:List<FinanceTransaction> = emptyList(),val curs
  fun update(value:TransactionSearchFilter){_filter.value=value;persist(value)}
  fun reset(){update(TransactionSearchFilter());apply()}
  fun apply(){_state.value=ResultState();loadMore()}
- fun loadMore(){val current=_state.value;if(current.loading||current.end)return;_state.value=current.copy(loading=true,error=false);viewModelScope.launch{runCatching{repository.search(_filter.value,current.cursor)}.onSuccess{page->_state.value=ResultState(current.items+page.items,page.nextCursor,false,page.nextCursor==null,false)}.onFailure{_state.value=current.copy(loading=false,error=true)}}}
+ fun loadMore(){val current=_state.value;if(current.loading||current.end)return;_state.value=current.copy(loading=true,error=false);viewModelScope.launch{runCatching{repository.search(_filter.value,current.cursor)}.onSuccess{page->val window=(current.items+page.items).takeLast(1000);_state.value=ResultState(window,page.nextCursor,false,page.nextCursor==null,false)}.onFailure{_state.value=current.copy(loading=false,error=true)}}}
  private fun persist(v:TransactionSearchFilter){saved["q"]=v.text;saved["type"]=v.type?.name;saved["account"]=v.accountId;saved["category"]=v.categoryId;saved["sub"]=v.subcategoryId;saved["from"]=v.fromDate;saved["to"]=v.toDate;saved["min"]=v.minimumMinor;saved["max"]=v.maximumMinor;saved["sort"]=v.sort.name}
  private fun restore()=TransactionSearchFilter(saved["q"]?:"",(saved.get<String>("type"))?.let(TransactionType::valueOf),saved["account"],saved["category"],saved["sub"],saved["from"],saved["to"],saved["min"],saved["max"],saved.get<String>("sort")?.let(TransactionSort::valueOf)?:TransactionSort.DATE_DESC)
 }

@@ -95,6 +95,7 @@ data class SubcategoryEntity(
         Index("workspace_id", "local_date", "deleted_at"), Index("account_id", "occurred_at", "deleted_at"),
         Index("destination_account_id", "occurred_at", "deleted_at"), Index("category_id", "local_date", "type", "deleted_at"),
         Index("occurred_at", "type", "deleted_at"), Index("category_id", "occurred_at", "deleted_at"), Index("subcategory_id"), Index("amount_minor", "occurred_at", "deleted_at"),
+        Index("deleted_at", "occurred_at", "id"), Index("deleted_at", "amount_minor", "id"), Index("deleted_at", "local_date", "type", "category_id"),
     ],
 )
 data class FinanceTransactionEntity(

@@ -8,6 +8,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -58,11 +60,13 @@ private fun EvolutionChart(points: List<AnalyticsPoint>, modifier: Modifier) {
     val expense = MaterialTheme.colorScheme.error
     val net = MaterialTheme.colorScheme.primary
     val description = stringResource(R.string.analytics_chart_description, points.size)
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val maximum = (points.maxOfOrNull { maxOf(it.incomeMinor, it.expenseMinor, kotlin.math.abs(it.netMinor)) } ?: 1L).coerceAtLeast(1L)
     Canvas(modifier.semantics { contentDescription = description }) {
         val step = size.width / maxOf(1, points.size)
         points.forEachIndexed { index, value ->
-            val x = step * (index + .5f)
+            val logicalX = step * (index + .5f)
+            val x = if (rtl) size.width - logicalX else logicalX
             val incomeY = size.height - (value.incomeMinor.toFloat() / maximum.toFloat()) * size.height
             val expenseY = size.height - (value.expenseMinor.toFloat() / maximum.toFloat()) * size.height
             val netY = size.height - (kotlin.math.abs(value.netMinor).toFloat() / maximum.toFloat()) * size.height

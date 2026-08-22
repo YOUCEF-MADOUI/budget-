@@ -8,6 +8,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.stringResource
@@ -141,13 +143,16 @@ private fun BalanceEvolutionChart(points: List<BalancePoint>, modifier: Modifier
     val maxBalance = points.maxOf { it.balanceMinor }
     val range = max(1L, maxBalance - min)
     val description = stringResource(R.string.dashboard_chart_description, points.size)
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     Canvas(modifier.semantics { contentDescription = description }) {
         repeat(4) { index -> val y = size.height * index / 3f; drawLine(gridColor, Offset(0f, y), Offset(size.width, y), 1.dp.toPx()) }
         val denominator = max(1, points.lastIndex)
         points.zipWithNext().forEachIndexed { index, pair ->
             fun y(value: Long): Float = size.height - ((value - min).toFloat() / range.toFloat()) * size.height
-            val x1 = size.width * index / denominator
-            val x2 = size.width * (index + 1) / denominator
+            val logicalX1 = size.width * index / denominator
+            val logicalX2 = size.width * (index + 1) / denominator
+            val x1 = if (rtl) size.width - logicalX1 else logicalX1
+            val x2 = if (rtl) size.width - logicalX2 else logicalX2
             drawLine(lineColor, Offset(x1, y(pair.first.balanceMinor)), Offset(x2, y(pair.second.balanceMinor)), 3.dp.toPx(), StrokeCap.Round)
         }
     }

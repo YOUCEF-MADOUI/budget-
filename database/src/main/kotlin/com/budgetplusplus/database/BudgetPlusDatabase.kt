@@ -22,7 +22,7 @@ import com.budgetplusplus.database.entity.WorkspaceEntity
 import com.budgetplusplus.database.entity.RecurringTransactionEntity
 import com.budgetplusplus.database.entity.RecurringOccurrenceEntity
 
-@Database(entities = [WorkspaceEntity::class, AccountEntity::class, CategoryEntity::class, SubcategoryEntity::class, FinanceTransactionEntity::class, BudgetEntity::class, BudgetAlertThresholdEntity::class, BudgetAlertEventEntity::class, RecurringTransactionEntity::class, RecurringOccurrenceEntity::class], version = 6, exportSchema = true)
+@Database(entities = [WorkspaceEntity::class, AccountEntity::class, CategoryEntity::class, SubcategoryEntity::class, FinanceTransactionEntity::class, BudgetEntity::class, BudgetAlertThresholdEntity::class, BudgetAlertEventEntity::class, RecurringTransactionEntity::class, RecurringOccurrenceEntity::class], version = 7, exportSchema = true)
 @TypeConverters(RoomConverters::class)
 abstract class BudgetPlusDatabase : RoomDatabase() {
     abstract fun accountDao(): AccountDao
@@ -36,7 +36,7 @@ abstract class BudgetPlusDatabase : RoomDatabase() {
 
     companion object {
         const val NAME = "budget_plus_plus.db"
-        const val SCHEMA_VERSION = 6
+        const val SCHEMA_VERSION = 7
         const val DEFAULT_WORKSPACE_ID = "00000000-0000-0000-0000-000000000001"
     }
 }
