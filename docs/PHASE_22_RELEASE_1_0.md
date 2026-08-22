@@ -47,12 +47,13 @@ Depuis la racine, avec JDK 17 et Android SDK 36 :
 ```bash
 ./gradlew projects --stacktrace
 ./gradlew clean assembleDebug --stacktrace
+./gradlew :app:releaseCandidate --stacktrace
 ./gradlew lint --stacktrace
 ./gradlew staticAnalysis --stacktrace
 ./gradlew test --stacktrace
 ```
 
-`assembleDebug` dépend aussi de `bundleRelease` pour vérifier systématiquement la génération du bundle 1.0. Android Lint reste une dépendance d'assemblage via les convention plugins, et les tests dépendent de l'analyse statique.
+La tâche `:app:releaseCandidate` construit ensemble l'APK debug et le bundle release 1.0. Android Lint reste une dépendance d'assemblage via les convention plugins, et les tests dépendent de l'analyse statique.
 
 Pour installer et lancer sur un appareil ou émulateur API 26+ :
 

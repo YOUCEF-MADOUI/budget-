@@ -36,8 +36,9 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
 
-// A release-candidate build must prove that both the installable debug APK and
-// the unsigned release bundle can be packaged. Signing remains external to Git.
-tasks.matching { it.name == "assembleDebug" }.configureEach {
-    dependsOn("bundleRelease")
+// Explicit release-candidate entry point. Signing remains external to Git.
+tasks.register("releaseCandidate") {
+    group = "build"
+    description = "Builds the installable debug APK and the unsigned release bundle."
+    dependsOn("assembleDebug", "bundleRelease")
 }

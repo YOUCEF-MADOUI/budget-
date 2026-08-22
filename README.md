@@ -57,10 +57,11 @@ Depuis la racine du dépôt :
 ```bash
 ./gradlew projects --stacktrace
 ./gradlew clean assembleDebug --stacktrace
+./gradlew :app:releaseCandidate --stacktrace
 ./gradlew lint staticAnalysis test --stacktrace
 ```
 
-`assembleDebug` valide également `bundleRelease`. Les sorties sont :
+La tâche `:app:releaseCandidate` valide ensemble l'APK debug et le bundle release. Les sorties sont :
 
 - APK de test installable : `app/build/outputs/apk/debug/app-debug.apk` ;
 - AAB release non signé : `app/build/outputs/bundle/release/app-release.aab`.
