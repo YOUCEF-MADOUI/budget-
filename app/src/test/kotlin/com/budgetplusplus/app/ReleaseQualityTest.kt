@@ -62,12 +62,22 @@ class ReleaseQualityTest {
         assertTrue(adaptive.contains("@color/ic_launcher_background"))
         val themed = File(root, "app/src/main/res/mipmap-anydpi-v33/ic_launcher.xml").readText()
         assertTrue(themed.contains("@drawable/ic_launcher_monochrome"))
+
+        val appSource = File(
+            root,
+            "app/src/main/kotlin/com/budgetplusplus/app/BudgetPlusPlusApp.kt",
+        ).readText()
+        assertTrue(appSource.contains("brandIconRes = R.drawable.ic_launcher_foreground"))
+        assertFalse(appSource.contains("brandIconRes = R.mipmap.ic_launcher"))
     }
 
     @Test
     fun `all localized modules keep French English Arabic parity`() {
         val modules = root.walkTopDown()
-            .filter { it.isFile && it.path.endsWith("src/main/res/values/strings.xml") }
+            .filter {
+                it.isFile &&
+                    it.invariantSeparatorsPath.endsWith("src/main/res/values/strings.xml")
+            }
             .toList()
         assertTrue(modules.isNotEmpty())
         modules.forEach { base ->

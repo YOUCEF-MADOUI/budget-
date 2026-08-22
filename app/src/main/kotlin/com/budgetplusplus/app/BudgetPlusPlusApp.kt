@@ -67,7 +67,7 @@ fun BudgetPlusPlusApp() {
         ) {
             composable(AppDestination.Welcome.route) {
                 TechnicalWelcomeScreen(
-                    brandIconRes = R.mipmap.ic_launcher,
+                    brandIconRes = R.drawable.ic_launcher_foreground,
                     onStartClick = {
                         navController.navigate(AppDestination.Home.route) {
                             popUpTo(AppDestination.Welcome.route) { inclusive = true }
