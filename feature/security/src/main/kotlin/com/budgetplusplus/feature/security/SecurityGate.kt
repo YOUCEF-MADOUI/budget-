@@ -20,10 +20,11 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.budgetplusplus.core.model.PinVerificationResult
 import kotlinx.coroutines.delay
 
-@Composable fun SecurityGate(content:@Composable()->Unit,vm:SecurityViewModel=hiltViewModel()){
+@Composable fun SecurityGate(content: @Composable () -> Unit,vm:SecurityViewModel=hiltViewModel()){
  val settings by vm.settings.collectAsStateWithLifecycle();val locked by vm.locked.collectAsStateWithLifecycle();val erased by vm.erased.collectAsStateWithLifecycle();val context=LocalContext.current;val activity=context.activity()
  DisposableEffect(Unit){val observer=object:DefaultLifecycleObserver{override fun onStop(owner:LifecycleOwner){vm.background()};override fun onStart(owner:LifecycleOwner){vm.foreground()}};ProcessLifecycleOwner.get().lifecycle.addObserver(observer);onDispose{ProcessLifecycleOwner.get().lifecycle.removeObserver(observer)}}
  LaunchedEffect(settings.protectScreen,activity){activity?.window?.let{if(settings.protectScreen)it.addFlags(WindowManager.LayoutParams.FLAG_SECURE)else it.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)}}
