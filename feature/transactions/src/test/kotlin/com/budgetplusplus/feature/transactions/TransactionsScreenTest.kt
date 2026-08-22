@@ -13,8 +13,8 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class) @Config(sdk=[35],qualifiers="fr")
 class TransactionsScreenTest {
- @get:Rule val compose=createComposeRule();private val transactions=FakeTransactions();private val accounts=FakeTransactionAccounts();private val categories=FakeTransactionCategories()
- @Before fun content(){compose.setContent{BudgetPlusPlusTheme{TransactionsScreen(null,{},TransactionsViewModel(accounts,categories,transactions))}}}
+ @get:Rule val compose=createComposeRule();private val transactions=FakeTransactions();private val accounts=FakeTransactionAccounts();private val categories=FakeTransactionCategories();private lateinit var viewModel:TransactionsViewModel
+ @Before fun content(){viewModel=TransactionsViewModel(accounts,categories,transactions);compose.setContent{BudgetPlusPlusTheme{TransactionsScreen(null,{},viewModel)}}}
  @Test fun `expense journey selects account category and exact amount`(){compose.onNodeWithText("Ajouter une opération").performClick();compose.onNodeWithText("Montant").performTextInput("42,50");compose.onNodeWithText("Catégorie").performClick();compose.onNodeWithText("Food").performClick();compose.onNodeWithText("Enregistrer").performClick();compose.waitUntil{transactions.saved.isNotEmpty()};val value=transactions.saved.single();assertEquals(TransactionType.EXPENSE,value.type);assertEquals(4_250,value.amount);assertEquals("cash",value.account);assertEquals("food",value.category)}
 }
 private data class SavedTransaction(val type:TransactionType,val amount:Long,val account:String,val destination:String?,val category:String?)

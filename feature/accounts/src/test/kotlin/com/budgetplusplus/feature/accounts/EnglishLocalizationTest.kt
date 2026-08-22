@@ -17,6 +17,6 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class) @Config(sdk=[35],qualifiers="en")
 class EnglishLocalizationTest {
  @get:Rule val compose=createComposeRule()
- @Test fun `account empty state is translated to English`(){compose.setContent{BudgetPlusPlusTheme{AccountsScreen(null,AccountsViewModel(EnglishEmptyAccounts()))}};compose.onNodeWithText("No accounts").assertExists()}
+ @Test fun `account empty state is translated to English`(){val viewModel=AccountsViewModel(EnglishEmptyAccounts());compose.setContent{BudgetPlusPlusTheme{AccountsScreen(null,viewModel)}};compose.onNodeWithText("No accounts").assertExists()}
 }
 private class EnglishEmptyAccounts:AccountRepository{override fun observeAccounts():Flow<List<Account>> = flowOf(emptyList());override suspend fun create(name:String,type:AccountType,initialBalanceMinor:Long,currencyCode:String)=Unit;override suspend fun setArchived(id:String,archived:Boolean)=Unit}

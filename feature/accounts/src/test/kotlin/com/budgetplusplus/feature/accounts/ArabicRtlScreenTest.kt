@@ -20,6 +20,6 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class) @Config(sdk=[35],qualifiers="ar")
 class ArabicRtlScreenTest {
  @get:Rule val compose=createComposeRule()
- @Test fun `arabic resources activate RTL layout`(){compose.setContent{BudgetPlusPlusTheme{val direction=LocalLayoutDirection.current;Box(Modifier.testTag("rtl-root").semantics{stateDescription=direction.name}){AccountsScreen(null,AccountsViewModel(EmptyAccounts()))}}};compose.onNodeWithText("لا توجد حسابات").assertExists();compose.onNodeWithTag("rtl-root").assert(SemanticsMatcher.expectValue(androidx.compose.ui.semantics.SemanticsProperties.StateDescription,"Rtl"))}
+ @Test fun `arabic resources activate RTL layout`(){val viewModel=AccountsViewModel(EmptyAccounts());compose.setContent{BudgetPlusPlusTheme{val direction=LocalLayoutDirection.current;Box(Modifier.testTag("rtl-root").semantics{stateDescription=direction.name}){AccountsScreen(null,viewModel)}}};compose.onNodeWithText("لا توجد حسابات").assertExists();compose.onNodeWithTag("rtl-root").assert(SemanticsMatcher.expectValue(androidx.compose.ui.semantics.SemanticsProperties.StateDescription,"Rtl"))}
 }
 private class EmptyAccounts:AccountRepository{override fun observeAccounts():Flow<List<Account>> = flowOf(emptyList());override suspend fun create(name:String,type:AccountType,initialBalanceMinor:Long,currencyCode:String)=Unit;override suspend fun setArchived(id:String,archived:Boolean)=Unit}

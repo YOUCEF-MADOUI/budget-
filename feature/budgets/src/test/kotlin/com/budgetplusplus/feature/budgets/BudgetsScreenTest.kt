@@ -13,8 +13,8 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class) @Config(sdk=[35],qualifiers="fr")
 class BudgetsScreenTest {
- @get:Rule val compose=createComposeRule();private val budgets=FakeBudgets()
- @Before fun content(){compose.setContent{BudgetPlusPlusTheme{BudgetsScreen(null,BudgetsViewModel(budgets,EmptyCategories()))}}}
+ @get:Rule val compose=createComposeRule();private val budgets=FakeBudgets();private lateinit var viewModel:BudgetsViewModel
+ @Before fun content(){viewModel=BudgetsViewModel(budgets,EmptyCategories());compose.setContent{BudgetPlusPlusTheme{BudgetsScreen(null,viewModel)}}}
  @Test fun `global monthly budget can be created from empty state`(){compose.onNodeWithText("Aucun budget actif").assertExists();compose.onNodeWithText("Créer un budget").performClick();compose.onNodeWithText("Nom").performTextInput("Courses");compose.onNodeWithText("Montant prévu").performTextInput("5000");compose.onNodeWithText("Enregistrer").performClick();compose.waitUntil{budgets.values.value.size==1};assertEquals(500_000,budgets.saved?.amountMinor);assertEquals(BudgetScope.GLOBAL,budgets.saved?.scope)}
 }
 private class FakeBudgets:BudgetRepository{val values=MutableStateFlow<List<BudgetProgress>>(emptyList());var saved:BudgetInput?=null;override fun observeBudgets():Flow<List<BudgetProgress>> =values;override suspend fun save(input:BudgetInput){saved=input;values.value=listOf(BudgetProgress("id",input.name,input.scope,amountMinor=input.amountMinor,spentMinor=0,currencyCode="DZD",periodType=input.periodType,startDate=input.startDate,endDate=input.endDate,warningThresholdPercent=input.warningThresholdPercent,isArchived=false))};override suspend fun setArchived(id:String,archived:Boolean)=Unit}
