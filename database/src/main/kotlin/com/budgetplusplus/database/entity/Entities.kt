@@ -65,17 +65,36 @@ data class CategoryEntity(
 )
 
 @Entity(
+    tableName = "subcategories",
+    foreignKeys = [ForeignKey(entity = CategoryEntity::class, parentColumns = ["id"], childColumns = ["category_id"], onDelete = ForeignKey.RESTRICT)],
+    indices = [Index("category_id", "is_archived", "deleted_at")],
+)
+data class SubcategoryEntity(
+    @PrimaryKey val id: String,
+    @ColumnInfo(name = "category_id") val categoryId: String,
+    @ColumnInfo(name = "name_key") val nameKey: String? = null,
+    @ColumnInfo(name = "custom_name") val customName: String? = null,
+    @ColumnInfo(name = "is_system") val isSystem: Boolean = false,
+    @ColumnInfo(name = "is_archived") val isArchived: Boolean = false,
+    @ColumnInfo(name = "display_order") val displayOrder: Int = 0,
+    @ColumnInfo(name = "created_at") val createdAt: Long,
+    @ColumnInfo(name = "updated_at") val updatedAt: Long,
+    @ColumnInfo(name = "deleted_at") val deletedAt: Long? = null,
+)
+
+@Entity(
     tableName = "finance_transactions",
     foreignKeys = [
         ForeignKey(entity = WorkspaceEntity::class, parentColumns = ["id"], childColumns = ["workspace_id"], onDelete = ForeignKey.CASCADE),
         ForeignKey(entity = AccountEntity::class, parentColumns = ["id"], childColumns = ["account_id"], onDelete = ForeignKey.RESTRICT),
         ForeignKey(entity = AccountEntity::class, parentColumns = ["id"], childColumns = ["destination_account_id"], onDelete = ForeignKey.RESTRICT),
         ForeignKey(entity = CategoryEntity::class, parentColumns = ["id"], childColumns = ["category_id"], onDelete = ForeignKey.SET_NULL),
+        ForeignKey(entity = SubcategoryEntity::class, parentColumns = ["id"], childColumns = ["subcategory_id"], onDelete = ForeignKey.SET_NULL),
     ],
     indices = [
         Index("workspace_id", "local_date", "deleted_at"), Index("account_id", "occurred_at", "deleted_at"),
         Index("destination_account_id", "occurred_at", "deleted_at"), Index("category_id", "local_date", "type", "deleted_at"),
-        Index("occurred_at", "type", "deleted_at"), Index("category_id", "occurred_at", "deleted_at"),
+        Index("occurred_at", "type", "deleted_at"), Index("category_id", "occurred_at", "deleted_at"), Index("subcategory_id"),
     ],
 )
 data class FinanceTransactionEntity(
@@ -87,6 +106,7 @@ data class FinanceTransactionEntity(
     @ColumnInfo(name = "account_id") val accountId: String,
     @ColumnInfo(name = "destination_account_id") val destinationAccountId: String? = null,
     @ColumnInfo(name = "category_id") val categoryId: String? = null,
+    @ColumnInfo(name = "subcategory_id") val subcategoryId: String? = null,
     @ColumnInfo(name = "occurred_at") val occurredAt: Long,
     @ColumnInfo(name = "local_date") val localDate: String,
     @ColumnInfo(name = "zone_id") val zoneId: String,

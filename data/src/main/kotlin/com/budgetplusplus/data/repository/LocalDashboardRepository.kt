@@ -57,6 +57,8 @@ class LocalDashboardRepository @Inject constructor(
                     categoryCustomName = row.categoryCustomName,
                     occurredAt = row.occurredAt,
                     description = row.description,
+                    subcategoryId = row.subcategoryId,
+                    subcategoryName = row.subcategoryName,
                 )
             })
         }

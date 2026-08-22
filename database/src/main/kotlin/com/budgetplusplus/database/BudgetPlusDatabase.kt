@@ -10,9 +10,10 @@ import com.budgetplusplus.database.dao.TransactionDao
 import com.budgetplusplus.database.entity.AccountEntity
 import com.budgetplusplus.database.entity.CategoryEntity
 import com.budgetplusplus.database.entity.FinanceTransactionEntity
+import com.budgetplusplus.database.entity.SubcategoryEntity
 import com.budgetplusplus.database.entity.WorkspaceEntity
 
-@Database(entities = [WorkspaceEntity::class, AccountEntity::class, CategoryEntity::class, FinanceTransactionEntity::class], version = 2, exportSchema = true)
+@Database(entities = [WorkspaceEntity::class, AccountEntity::class, CategoryEntity::class, SubcategoryEntity::class, FinanceTransactionEntity::class], version = 3, exportSchema = true)
 @TypeConverters(RoomConverters::class)
 abstract class BudgetPlusDatabase : RoomDatabase() {
     abstract fun accountDao(): AccountDao

@@ -22,6 +22,18 @@ data class Category(
     val customName: String? = null,
     val isSystem: Boolean = false,
     val isArchived: Boolean = false,
+    val iconKey: String = "category",
+    val colorKey: String = "primary",
+    val usageCount: Int = 0,
+)
+
+data class Subcategory(
+    val id: String,
+    val categoryId: String,
+    val name: String,
+    val isSystem: Boolean = false,
+    val isArchived: Boolean = false,
+    val usageCount: Int = 0,
 )
 
 data class FinanceTransaction(
@@ -38,4 +50,6 @@ data class FinanceTransaction(
     val categoryCustomName: String? = null,
     val occurredAt: Long,
     val description: String = "",
+    val subcategoryId: String? = null,
+    val subcategoryName: String? = null,
 )
