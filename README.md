@@ -11,8 +11,9 @@ Budget++ est une application Android native de gestion budgétaire personnelle, 
 - **Phase 3 — Design System :** terminée.
 - **Phase 4 — Room et premières fonctionnalités :** terminée.
 - **Phase 5 — Domaine et boucle financière utilisable :** navigation principale, validations, confirmations, erreurs et historique filtrable en français, anglais et arabe.
+- **Phase 8 — Tableau de bord financier :** agrégats Room réactifs, soldes, évolution, catégories, opérations récentes et périodes personnalisées.
 
-Documentation : [Design System Budget++](docs/PHASE_3_DESIGN_SYSTEM.md) · [Base Room et premières fonctionnalités](docs/PHASE_4_FIRST_FEATURES.md) · [Domaine et boucle financière utilisable](docs/PHASE_5_USABLE_FINANCE_LOOP.md).
+Documentation : [Design System Budget++](docs/PHASE_3_DESIGN_SYSTEM.md) · [Base Room et premières fonctionnalités](docs/PHASE_4_FIRST_FEATURES.md) · [Domaine et boucle financière utilisable](docs/PHASE_5_USABLE_FINANCE_LOOP.md) · [Tableau de bord financier](docs/PHASE_8_DASHBOARD.md).
 
 ## Configuration Android
 

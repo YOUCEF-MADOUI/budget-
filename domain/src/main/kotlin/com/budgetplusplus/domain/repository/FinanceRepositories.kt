@@ -4,6 +4,7 @@ import com.budgetplusplus.core.model.Account
 import com.budgetplusplus.core.model.AccountType
 import com.budgetplusplus.core.model.Category
 import com.budgetplusplus.core.model.CategoryKind
+import com.budgetplusplus.core.model.DashboardData
 import com.budgetplusplus.core.model.FinanceTransaction
 import com.budgetplusplus.core.model.TransactionType
 import kotlinx.coroutines.flow.Flow
@@ -18,6 +19,10 @@ interface CategoryRepository {
     fun observeCategories(kind: CategoryKind? = null): Flow<List<Category>>
     suspend fun create(name: String, kind: CategoryKind)
     suspend fun setArchived(id: String, archived: Boolean)
+}
+
+interface DashboardRepository {
+    fun observeDashboard(fromInclusive: Long, toExclusive: Long): Flow<DashboardData>
 }
 
 interface TransactionRepository {
