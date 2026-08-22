@@ -9,6 +9,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
         pluginManager.apply("com.android.application")
         pluginManager.apply("org.jetbrains.kotlin.android")
         configureAndroidApplication()
+        tasks.matching { it.name == "assembleDebug" }.configureEach { dependsOn("lintDebug") }
           }
     }
 }

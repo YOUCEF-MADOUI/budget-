@@ -11,6 +11,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
         pluginManager.apply("com.android.library")
         pluginManager.apply("org.jetbrains.kotlin.android")
         configureAndroidLibrary()
+        tasks.matching { it.name == "assembleDebug" }.configureEach { dependsOn("lintDebug") }
 
         val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
         dependencies.add("testImplementation", libs.findLibrary("junit4").get())

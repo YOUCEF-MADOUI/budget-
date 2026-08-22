@@ -56,6 +56,13 @@ internal fun Project.configureAndroidApplication() {
         )
 
         testOptions.unitTests.isIncludeAndroidResources = true
+        lint {
+            abortOnError = true
+            checkReleaseBuilds = true
+            warningsAsErrors = false
+            htmlReport = true
+            xmlReport = true
+        }
     }
     configureAndroidKotlin()
 }
@@ -76,6 +83,13 @@ internal fun Project.configureAndroidLibrary() {
         }
 
         testOptions.unitTests.isIncludeAndroidResources = true
+        lint {
+            abortOnError = true
+            checkReleaseBuilds = true
+            warningsAsErrors = false
+            htmlReport = true
+            xmlReport = true
+        }
     }
     configureAndroidKotlin()
 }

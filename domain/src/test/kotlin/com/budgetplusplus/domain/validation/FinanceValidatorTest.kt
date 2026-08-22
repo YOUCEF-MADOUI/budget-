@@ -16,6 +16,11 @@ class FinanceValidatorTest {
         assertTrue(FinanceValidator.validateTransaction(TransactionType.TRANSFER, 100L, "source", "destination", null, null, ""))
         assertFalse(FinanceValidator.validateTransaction(TransactionType.TRANSFER, 100L, "source", "source", null, null, ""))
     }
+    @Test fun `income and transfer invariants remain valid at long boundaries`() {
+        assertTrue(FinanceValidator.validateTransaction(TransactionType.INCOME, Long.MAX_VALUE, "account", null, "income", CategoryKind.INCOME, ""))
+        assertFalse(FinanceValidator.validateTransaction(TransactionType.TRANSFER, 100L, "source", "destination", "category", CategoryKind.EXPENSE, ""))
+        assertFalse(FinanceValidator.validateTransaction(TransactionType.INCOME, 100L, "account", "destination", "income", CategoryKind.INCOME, ""))
+    }
     @Test fun `names and descriptions have bounded lengths`() {
         assertTrue(FinanceValidator.isValidName("Compte"))
         assertFalse(FinanceValidator.isValidName(" "))

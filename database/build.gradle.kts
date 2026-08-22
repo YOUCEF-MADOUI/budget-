@@ -7,4 +7,8 @@ plugins {
 dependencies {
     implementation(project(":core:model"))
     implementation(project(":core:common"))
+    testImplementation(libs.androidx.room.testing)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.kotlinx.coroutines.test)
 }
