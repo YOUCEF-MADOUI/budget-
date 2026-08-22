@@ -2,6 +2,7 @@ package com.budgetplusplus.feature.accounts
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -21,15 +22,19 @@ import com.budgetplusplus.core.designsystem.financial.MoneyText
 import com.budgetplusplus.core.designsystem.icons.BudgetIcons
 import com.budgetplusplus.core.model.Account
 import com.budgetplusplus.core.model.AccountType
+import com.budgetplusplus.domain.accounts.AccountHierarchy
 
 @Composable
 fun AccountsScreen(onBack: (() -> Unit)?, onAccountClick: (String) -> Unit = {}, viewModel: AccountsViewModel = hiltViewModel()) {
     val accounts by viewModel.accounts.collectAsStateWithLifecycle()
     val hasError by viewModel.hasError.collectAsStateWithLifecycle()
     var showAdd by remember { mutableStateOf(false) }
+    var addParentId by remember { mutableStateOf<String?>(null) }
+    var collapsedIds by remember { mutableStateOf<Set<String>>(emptySet()) }
     var showArchived by remember { mutableStateOf(false) }
     var pendingAccount by remember { mutableStateOf<Account?>(null) }
     val visibleAccounts = accounts.filter { it.isArchived == showArchived }
+    val treeNodes = AccountHierarchy.flatten(visibleAccounts, collapsedIds)
     val snackbar = remember { SnackbarHostState() }
     val errorMessage = stringResource(R.string.accounts_error)
     LaunchedEffect(hasError) { if (hasError) { snackbar.showSnackbar(errorMessage); viewModel.clearError() } }
@@ -37,7 +42,7 @@ fun AccountsScreen(onBack: (() -> Unit)?, onAccountClick: (String) -> Unit = {},
     Scaffold(
         snackbarHost = { SnackbarHost(snackbar) },
         topBar = { BudgetTopAppBar(stringResource(R.string.accounts_title), onBackClick = onBack) },
-        floatingActionButton = { FloatingActionButton(onClick = { showAdd = true }) { Text(stringResource(R.string.accounts_add_symbol)) } },
+        floatingActionButton = { FloatingActionButton(onClick = { addParentId = null; showAdd = true }) { Text(stringResource(R.string.accounts_add_symbol)) } },
     ) { padding ->
         Column(Modifier.padding(padding).fillMaxSize()) {
             if (accounts.isNotEmpty()) {
@@ -52,17 +57,19 @@ fun AccountsScreen(onBack: (() -> Unit)?, onAccountClick: (String) -> Unit = {},
                     FilterChip(selected = showArchived, onClick = { showArchived = true }, label = { Text(stringResource(R.string.accounts_archived_filter)) })
                 }
             }
-            if (visibleAccounts.isEmpty()) {
+            if (treeNodes.isEmpty()) {
                 BudgetEmptyState(
                     title = stringResource(if (showArchived) R.string.accounts_no_archived else R.string.accounts_empty_title),
                     message = stringResource(if (showArchived) R.string.accounts_no_archived_message else R.string.accounts_empty_message),
                     actionText = if (showArchived) null else stringResource(R.string.accounts_add_action),
-                    onAction = if (showArchived) null else ({ showAdd = true }),
+                    onAction = if (showArchived) null else ({ addParentId = null; showAdd = true }),
                     modifier = Modifier.fillMaxSize(),
                 )
             } else {
                 LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    items(visibleAccounts, key = { it.id }) { account ->
+                    items(treeNodes, key = { it.account.id }) { node ->
+                        val account = node.account
+                        Column(Modifier.padding(start = (node.depth.coerceAtMost(6) * 16).dp)) {
                         AccountCard(
                             name = account.name,
                             type = accountTypeLabel(account.type),
@@ -72,13 +79,18 @@ fun AccountsScreen(onBack: (() -> Unit)?, onAccountClick: (String) -> Unit = {},
                             onClick = { if (account.isArchived) pendingAccount = account else onAccountClick(account.id) },
                             state = if (account.isArchived) AccountVisualState.Archived else AccountVisualState.Active,
                         )
-                        if (!account.isArchived) TextButton(onClick = { pendingAccount = account }) { Text(stringResource(R.string.accounts_archive)) }
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            if (node.hasChildren) item { TextButton(onClick = { collapsedIds = if (account.id in collapsedIds) collapsedIds - account.id else collapsedIds + account.id }) { Text(stringResource(if (account.id in collapsedIds) R.string.accounts_expand else R.string.accounts_collapse)) } }
+                            if (!account.isArchived) item { TextButton(onClick = { addParentId = account.id; showAdd = true }) { Text(stringResource(R.string.accounts_add_child)) } }
+                            if (!account.isArchived) item { TextButton(onClick = { pendingAccount = account }) { Text(stringResource(R.string.accounts_archive)) } }
+                        }
+                        }
                     }
                 }
             }
         }
     }
-    if (showAdd) AddAccountDialog(onDismiss = { showAdd = false }, onSave = { name, type, amount -> viewModel.add(name, type, amount) { showAdd = false } })
+    if (showAdd) AddAccountDialog(accounts = accounts.filterNot { it.isArchived }, initialParentId = addParentId, onDismiss = { showAdd = false }, onSave = { name, type, amount, parent -> viewModel.add(name, type, amount, parent) { showAdd = false } })
     pendingAccount?.let { account ->
         BudgetConfirmationDialog(
             title = stringResource(if (account.isArchived) R.string.accounts_restore_title else R.string.accounts_archive_title),
@@ -91,10 +103,11 @@ fun AccountsScreen(onBack: (() -> Unit)?, onAccountClick: (String) -> Unit = {},
 }
 
 @Composable
-private fun AddAccountDialog(onDismiss: () -> Unit, onSave: (String, AccountType, Long) -> Unit) {
+private fun AddAccountDialog(accounts: List<Account>, initialParentId: String?, onDismiss: () -> Unit, onSave: (String, AccountType, Long, String?) -> Unit) {
     var name by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
     var type by remember { mutableStateOf(AccountType.CASH) }
+    var parentId by remember { mutableStateOf(initialParentId) }
     var expanded by remember { mutableStateOf(false) }
     val parsed = parseAmountMinor(amount)
     AlertDialog(
@@ -103,9 +116,11 @@ private fun AddAccountDialog(onDismiss: () -> Unit, onSave: (String, AccountType
         text = { Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             BudgetTextField(name, { name = it }, stringResource(R.string.accounts_name), isError = name.length > 60, supportingText = if (name.length > 60) stringResource(R.string.accounts_name_error) else null)
             Box { OutlinedButton(onClick = { expanded = true }, modifier = Modifier.fillMaxWidth()) { Text(accountTypeLabel(type)) }; DropdownMenu(expanded, { expanded = false }) { AccountType.entries.forEach { item -> DropdownMenuItem({ Text(accountTypeLabel(item)) }, { type = item; expanded = false }) } } }
+            var parentExpanded by remember { mutableStateOf(false) }
+            Box { OutlinedButton(onClick = { parentExpanded = true }, modifier = Modifier.fillMaxWidth()) { Text(accounts.firstOrNull { it.id == parentId }?.name ?: stringResource(R.string.accounts_main_account)) }; DropdownMenu(parentExpanded, { parentExpanded = false }) { DropdownMenuItem({ Text(stringResource(R.string.accounts_main_account)) }, { parentId = null; parentExpanded = false }); accounts.forEach { account -> DropdownMenuItem({ Text(account.name) }, { parentId = account.id; parentExpanded = false }) } } }
             BudgetAmountField(amount, { amount = it }, stringResource(R.string.accounts_initial_balance), stringResource(R.string.accounts_currency), isError = amount.isNotEmpty() && parsed == null, supportingText = if (amount.isNotEmpty() && parsed == null) stringResource(R.string.accounts_amount_error) else null)
         } },
-        confirmButton = { TextButton(onClick = { onSave(name.trim(), type, parsed ?: 0) }, enabled = name.isNotBlank() && name.length <= 60 && parsed != null) { Text(stringResource(R.string.accounts_save)) } },
+        confirmButton = { TextButton(onClick = { onSave(name.trim(), type, parsed ?: 0, parentId) }, enabled = name.isNotBlank() && name.length <= 60 && parsed != null) { Text(stringResource(R.string.accounts_save)) } },
         dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.accounts_cancel)) } },
     )
 }

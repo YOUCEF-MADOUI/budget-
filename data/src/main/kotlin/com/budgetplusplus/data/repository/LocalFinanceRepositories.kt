@@ -22,6 +22,7 @@ import com.budgetplusplus.domain.repository.CategoryRepository
 import com.budgetplusplus.domain.repository.TransactionRepository
 import com.budgetplusplus.domain.validation.FinanceValidator
 import com.budgetplusplus.domain.validation.CategoryReassignmentValidator
+import com.budgetplusplus.domain.accounts.AccountHierarchy
 import java.time.Instant
 import java.time.ZoneId
 import java.util.UUID
@@ -30,16 +31,19 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class LocalAccountRepository @Inject constructor(private val db: BudgetPlusDatabase, private val dao: AccountDao, private val transactions: TransactionDao) : AccountRepository {
-    override fun observeAccounts(): Flow<List<Account>> = dao.observeAll().map { rows -> rows.map { Account(it.id, it.name, AccountType.valueOf(it.type), it.currencyCode, it.initialBalanceMinor, it.currentBalanceMinor, it.isArchived, it.iconKey, it.colorKey, it.description, it.displayOrder) } }
+    override fun observeAccounts(): Flow<List<Account>> = dao.observeAll().map { rows -> rows.map { Account(it.id, it.name, AccountType.valueOf(it.type), it.currencyCode, it.initialBalanceMinor, it.currentBalanceMinor, it.isArchived, it.iconKey, it.colorKey, it.description, it.displayOrder, it.parentAccountId) } }
     override fun observeTotals(id: String): Flow<com.budgetplusplus.core.model.AccountOperationTotals> = dao.observeTotals(id).map { com.budgetplusplus.core.model.AccountOperationTotals(it.incomeMinor, it.expenseMinor, it.operationCount) }
-    override suspend fun create(name: String, type: AccountType, initialBalanceMinor: Long, currencyCode: String) {
-        require(FinanceValidator.isValidName(name)); val now = System.currentTimeMillis()
-        dao.insert(AccountEntity(UUID.randomUUID().toString(), BudgetPlusDatabase.DEFAULT_WORKSPACE_ID, name.trim(), type, currencyCode, initialBalanceMinor, createdAt = now, updatedAt = now))
+    override fun observeHierarchyMetrics(id: String): Flow<com.budgetplusplus.core.model.AccountHierarchyMetrics> = dao.observeHierarchyMetrics(id).map { com.budgetplusplus.core.model.AccountHierarchyMetrics(it.ownBalanceMinor,it.consolidatedBalanceMinor,it.ownIncomeMinor,it.ownExpenseMinor,it.consolidatedIncomeMinor,it.consolidatedExpenseMinor,it.descendantCount) }
+    override suspend fun create(name: String, type: AccountType, initialBalanceMinor: Long, currencyCode: String, parentAccountId: String?) {
+        require(FinanceValidator.isValidName(name)); val parent=parentAccountId?.let{requireNotNull(dao.get(it))};require(parent==null||parent.currencyCode==currencyCode);val now = System.currentTimeMillis()
+        dao.insert(AccountEntity(UUID.randomUUID().toString(), BudgetPlusDatabase.DEFAULT_WORKSPACE_ID, name.trim(), type, currencyCode, initialBalanceMinor, createdAt = now, updatedAt = now, parentAccountId=parentAccountId))
     }
     override suspend fun update(id: String, name: String, type: AccountType, iconKey: String, colorKey: String, description: String, displayOrder: Int) {
         require(FinanceValidator.isValidName(name) && description.length <= 120 && displayOrder >= 0); requireNotNull(dao.get(id)); dao.update(id, name.trim(), type, iconKey, colorKey, description.trim(), displayOrder, System.currentTimeMillis())
     }
-    override suspend fun setArchived(id: String, archived: Boolean) = dao.setArchived(id, archived, System.currentTimeMillis())
+    override suspend fun move(id: String, parentAccountId: String?) = db.withTransaction { val all=dao.getAll();val current=requireNotNull(all.firstOrNull{it.id==id});val parent=parentAccountId?.let{pid->requireNotNull(all.firstOrNull{it.id==pid})};require(parent==null||parent.currencyCode==current.currencyCode);require(AccountHierarchy.canMove(id,parentAccountId,all.associate{it.id to it.parentAccountId}));dao.move(id,parentAccountId,System.currentTimeMillis()) }
+    override suspend fun setArchived(id: String, archived: Boolean) = db.withTransaction { val now=System.currentTimeMillis();val all=dao.getAll();val ids=AccountHierarchy.descendantIds(id,all.map{it.toAccountModel()})+id;ids.forEach{dao.setArchived(it,archived,now)};if(!archived){val byId=all.associateBy{it.id};var parent=byId[id]?.parentAccountId;val visited=mutableSetOf<String>();while(parent!=null&&visited.add(parent)){dao.setArchived(parent,false,now);parent=byId[parent]?.parentAccountId}} }
+    private fun AccountEntity.toAccountModel() = Account(id,name,type,currencyCode,initialBalanceMinor,initialBalanceMinor,isArchived,iconKey,colorKey,description,displayOrder,parentAccountId)
     override suspend fun reassignOperations(sourceAccountId: String, targetAccountId: String, transactionIds: Set<String>) = db.withTransaction {
         require(sourceAccountId != targetAccountId && dao.exists(sourceAccountId) && dao.exists(targetAccountId) && transactionIds.isNotEmpty())
         val values = transactions.getEntities(transactionIds); require(values.size == transactionIds.size)
@@ -47,14 +51,11 @@ class LocalAccountRepository @Inject constructor(private val db: BudgetPlusDatab
     }
     override suspend fun deleteAndReassign(sourceAccountId: String, targetAccountId: String?) = db.withTransaction {
         require(targetAccountId != sourceAccountId && dao.activeRecurrenceCount(sourceAccountId) == 0)
-        val source = requireNotNull(dao.get(sourceAccountId)); val related = transactions.getRelated(sourceAccountId); val now = System.currentTimeMillis()
-        val target = targetAccountId?.let { requireNotNull(dao.get(it)) }
-        if (related.isNotEmpty()) {
-            val targetId = requireNotNull(targetAccountId)
-            related.forEach { transactions.update(reassigned(it, sourceAccountId, targetId)) }
-        }
-        if (target != null) dao.updateInitialBalance(target.id, Math.addExact(target.initialBalanceMinor, source.initialBalanceMinor), now)
-        dao.softDelete(sourceAccountId, now)
+        val all=dao.getAll();val source = requireNotNull(all.firstOrNull{it.id==sourceAccountId});val related=transactions.getRelated(sourceAccountId);val children=all.filter{it.parentAccountId==sourceAccountId};val now=System.currentTimeMillis()
+        val target=targetAccountId?.let{tid->requireNotNull(all.firstOrNull{it.id==tid})}
+        if(related.isNotEmpty()||children.isNotEmpty())requireNotNull(target)
+        if(target!=null){require(target.currencyCode==source.currencyCode);require(AccountHierarchy.canMove(sourceAccountId,target.id,all.associate{it.id to it.parentAccountId}));related.forEach{transactions.update(reassigned(it,sourceAccountId,target.id))};dao.moveChildren(sourceAccountId,target.id,now);dao.updateInitialBalance(target.id,Math.addExact(target.initialBalanceMinor,source.initialBalanceMinor),now)}
+        dao.softDelete(sourceAccountId,now)
     }
     private fun reassigned(value: FinanceTransactionEntity, source: String, target: String): FinanceTransactionEntity {
         require(value.accountId == source || value.destinationAccountId == source)

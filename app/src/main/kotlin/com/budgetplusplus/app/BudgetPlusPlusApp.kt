@@ -87,7 +87,7 @@ fun BudgetPlusPlusApp() {
                 )
             }
             composable(AppDestination.Accounts.route) { AccountsScreen(onBack = null, onAccountClick = { id -> navController.navigate("accounts/$id") }) }
-            composable(AppDestination.AccountDetail.route) { entry -> AccountDetailScreen(entry.arguments?.getString("accountId").orEmpty(), navController::navigateUp, { id -> navController.navigate("transactions/edit/$id") }, { type, account -> navController.navigate("transactions/new/${type.name}/$account") }) }
+            composable(AppDestination.AccountDetail.route) { entry -> AccountDetailScreen(entry.arguments?.getString("accountId").orEmpty(), navController::navigateUp, { id -> navController.navigate("transactions/edit/$id") }, { type, account -> navController.navigate("transactions/new/${type.name}/$account") }, { id -> navController.navigate("accounts/$id") }) }
             composable(AppDestination.Categories.route) { CategoriesScreen(onBack = null) }
             composable(AppDestination.Transactions.route) { TransactionsScreen(onBack = null, onAdvancedSearch = { navController.navigate(AppDestination.Search.route) }, onCreate = { navController.navigate(AppDestination.TransactionNew.route) }, onEdit = { id -> navController.navigate("transactions/edit/$id") }) }
             composable(AppDestination.TransactionNew.route) { TransactionEditorScreen(null, navController::navigateUp) }

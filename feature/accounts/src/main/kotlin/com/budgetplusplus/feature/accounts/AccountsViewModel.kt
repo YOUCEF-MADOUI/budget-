@@ -20,8 +20,8 @@ class AccountsViewModel @Inject constructor(private val repository: AccountRepos
     private val _hasError = MutableStateFlow(false)
     val hasError = _hasError.asStateFlow()
 
-    fun add(name: String, type: AccountType, amountMinor: Long, onSuccess: () -> Unit) = viewModelScope.launch {
-        runCatching { repository.create(name, type, amountMinor) }
+    fun add(name: String, type: AccountType, amountMinor: Long, parentAccountId: String?, onSuccess: () -> Unit) = viewModelScope.launch {
+        runCatching { repository.create(name, type, amountMinor, parentAccountId = parentAccountId) }
             .onSuccess { _hasError.value = false; onSuccess() }
             .onFailure { _hasError.value = true }
     }

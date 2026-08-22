@@ -30,4 +30,4 @@ Les règles récurrentes actives ou en pause protègent leur compte : la suppres
 
 Les interfaces et descriptions d'icônes/couleurs sont disponibles en français, anglais et arabe RTL. Les graphiques et flèches restent directionnels. Les montants sont des `Long`.
 
-Les tests couvrent : modification des paramètres sans variation de solde, déplacement sélectionné, suppression avec report du solde initial, protection des auto-transferts, DAO réactifs, ViewModel et écran Compose. La migration complète 1→8, les charges 10k/50k/100k, Lint et l'analyse statique restent bloquants en CI.
+Les tests couvrent : modification des paramètres sans variation de solde, déplacement sélectionné, suppression avec report du solde initial, protection des auto-transferts, DAO réactifs, ViewModel et écran Compose. La migration complète 1→9, les charges 10k/50k/100k, Lint et l'analyse statique restent bloquants en CI.

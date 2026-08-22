@@ -17,9 +17,20 @@ data class Account(
     val colorKey: String = "primary",
     val description: String = "",
     val displayOrder: Int = 0,
+    val parentAccountId: String? = null,
 )
 
 data class AccountOperationTotals(val incomeMinor: Long = 0, val expenseMinor: Long = 0, val operationCount: Int = 0)
+data class AccountHierarchyMetrics(
+    val ownBalanceMinor: Long = 0,
+    val consolidatedBalanceMinor: Long = 0,
+    val ownIncomeMinor: Long = 0,
+    val ownExpenseMinor: Long = 0,
+    val consolidatedIncomeMinor: Long = 0,
+    val consolidatedExpenseMinor: Long = 0,
+    val descendantCount: Int = 0,
+)
+data class AccountTreeNode(val account: Account, val depth: Int, val hasChildren: Boolean)
 
 data class Category(
     val id: String,

@@ -23,8 +23,11 @@ data class WorkspaceEntity(
 
 @Entity(
     tableName = "accounts",
-    foreignKeys = [ForeignKey(entity = WorkspaceEntity::class, parentColumns = ["id"], childColumns = ["workspace_id"], onDelete = ForeignKey.CASCADE)],
-    indices = [Index("workspace_id", "is_archived", "deleted_at"), Index("name")],
+    foreignKeys = [
+        ForeignKey(entity = WorkspaceEntity::class, parentColumns = ["id"], childColumns = ["workspace_id"], onDelete = ForeignKey.CASCADE),
+        ForeignKey(entity = AccountEntity::class, parentColumns = ["id"], childColumns = ["parent_account_id"], onDelete = ForeignKey.RESTRICT),
+    ],
+    indices = [Index("workspace_id", "is_archived", "deleted_at"), Index("name"), Index("parent_account_id", "display_order", "deleted_at")],
 )
 data class AccountEntity(
     @PrimaryKey val id: String,
@@ -42,6 +45,7 @@ data class AccountEntity(
     @ColumnInfo(name = "created_at") val createdAt: Long,
     @ColumnInfo(name = "updated_at") val updatedAt: Long,
     @ColumnInfo(name = "deleted_at") val deletedAt: Long? = null,
+    @ColumnInfo(name = "parent_account_id") val parentAccountId: String? = null,
 )
 
 @Entity(
