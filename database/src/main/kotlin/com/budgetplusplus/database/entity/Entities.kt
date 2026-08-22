@@ -94,7 +94,7 @@ data class SubcategoryEntity(
     indices = [
         Index("workspace_id", "local_date", "deleted_at"), Index("account_id", "occurred_at", "deleted_at"),
         Index("destination_account_id", "occurred_at", "deleted_at"), Index("category_id", "local_date", "type", "deleted_at"),
-        Index("occurred_at", "type", "deleted_at"), Index("category_id", "occurred_at", "deleted_at"), Index("subcategory_id"),
+        Index("occurred_at", "type", "deleted_at"), Index("category_id", "occurred_at", "deleted_at"), Index("subcategory_id"), Index("amount_minor", "occurred_at", "deleted_at"),
     ],
 )
 data class FinanceTransactionEntity(

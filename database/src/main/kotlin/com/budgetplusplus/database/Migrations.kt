@@ -67,3 +67,5 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
   db.execSQL("CREATE INDEX IF NOT EXISTS index_recurring_occurrences_transaction_id ON recurring_occurrences(transaction_id)")
  }
 }
+
+val MIGRATION_5_6 = object : Migration(5,6){override fun migrate(db:SupportSQLiteDatabase){createSearchInfrastructure(db);db.execSQL("CREATE INDEX IF NOT EXISTS index_finance_transactions_amount_minor_occurred_at_deleted_at ON finance_transactions(amount_minor,occurred_at,deleted_at)")}}

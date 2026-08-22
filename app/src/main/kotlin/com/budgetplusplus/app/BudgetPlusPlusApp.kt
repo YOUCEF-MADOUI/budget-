@@ -20,6 +20,7 @@ import com.budgetplusplus.feature.categories.CategoriesScreen
 import com.budgetplusplus.feature.budgets.BudgetsScreen
 import com.budgetplusplus.feature.recurring.RecurringScreen
 import com.budgetplusplus.feature.analytics.AnalyticsScreen
+import com.budgetplusplus.feature.search.SearchScreen
 import com.budgetplusplus.feature.dashboard.HomePlaceholderScreen
 import com.budgetplusplus.feature.onboarding.TechnicalWelcomeScreen
 import com.budgetplusplus.feature.transactions.TransactionsScreen
@@ -81,10 +82,11 @@ fun BudgetPlusPlusApp() {
             }
             composable(AppDestination.Accounts.route) { AccountsScreen(onBack = null) }
             composable(AppDestination.Categories.route) { CategoriesScreen(onBack = null) }
-            composable(AppDestination.Transactions.route) { TransactionsScreen(onBack = null) }
+            composable(AppDestination.Transactions.route) { TransactionsScreen(onBack = null, onAdvancedSearch = { navController.navigate(AppDestination.Search.route) }) }
             composable(AppDestination.Budgets.route) { BudgetsScreen(onBack = navController::navigateUp) }
             composable(AppDestination.Recurring.route) { RecurringScreen(onBack = navController::navigateUp) }
             composable(AppDestination.Analytics.route) { AnalyticsScreen(onBack = null) }
+            composable(AppDestination.Search.route) { SearchScreen(onBack = navController::navigateUp) }
             composable(AppDestination.DesignSystem.route) { DesignSystemDemoScreen(onBackClick = navController::navigateUp) }
         }
     }

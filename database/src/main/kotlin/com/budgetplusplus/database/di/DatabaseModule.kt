@@ -9,6 +9,8 @@ import com.budgetplusplus.database.MIGRATION_1_2
 import com.budgetplusplus.database.MIGRATION_2_3
 import com.budgetplusplus.database.MIGRATION_3_4
 import com.budgetplusplus.database.MIGRATION_4_5
+import com.budgetplusplus.database.MIGRATION_5_6
+import com.budgetplusplus.database.createSearchInfrastructure
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,10 +24,11 @@ object DatabaseModule {
     @Provides @Singleton
     fun database(@ApplicationContext context: Context): BudgetPlusDatabase =
         Room.databaseBuilder(context, BudgetPlusDatabase::class.java, BudgetPlusDatabase.NAME)
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
             .addCallback(object : RoomDatabase.Callback() {
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     super.onCreate(db)
+                    createSearchInfrastructure(db)
                     val now = System.currentTimeMillis()
                     db.execSQL("INSERT INTO workspaces VALUES (?, ?, ?, ?, 1, ?, ?, NULL)", arrayOf<Any?>(BudgetPlusDatabase.DEFAULT_WORKSPACE_ID, "Budget++", "PERSONAL", "DZD", now, now))
                     val seeds = listOf(
@@ -51,4 +54,5 @@ object DatabaseModule {
     @Provides fun budgets(db: BudgetPlusDatabase) = db.budgetDao()
     @Provides fun recurring(db: BudgetPlusDatabase) = db.recurringDao()
     @Provides fun analytics(db: BudgetPlusDatabase) = db.analyticsDao()
+    @Provides fun search(db: BudgetPlusDatabase) = db.searchDao()
 }

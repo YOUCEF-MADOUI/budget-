@@ -42,7 +42,7 @@ class TransactionsViewModel @Inject constructor(accountsRepository: AccountRepos
 }
 
 @Composable
-fun TransactionsScreen(onBack: (() -> Unit)?, viewModel: TransactionsViewModel = hiltViewModel()) {
+fun TransactionsScreen(onBack: (() -> Unit)?, onAdvancedSearch: () -> Unit, viewModel: TransactionsViewModel = hiltViewModel()) {
     val rows by viewModel.transactions.collectAsStateWithLifecycle()
     val accounts by viewModel.accounts.collectAsStateWithLifecycle()
     val categories by viewModel.categories.collectAsStateWithLifecycle()
@@ -61,6 +61,7 @@ fun TransactionsScreen(onBack: (() -> Unit)?, viewModel: TransactionsViewModel =
         topBar = { BudgetTopAppBar(stringResource(R.string.transactions_title), onBackClick = onBack) },
         floatingActionButton = { FloatingActionButton(onClick = { if (accounts.isNotEmpty()) add = true }) { Text(stringResource(R.string.transactions_add_symbol)) } },
     ) { padding -> Column(Modifier.padding(padding).fillMaxSize()) {
+        Button(onClick = onAdvancedSearch, modifier = Modifier.padding(horizontal = 12.dp).fillMaxWidth()) { Text(stringResource(R.string.transactions_advanced_search)) }
         if (rows.isNotEmpty()) {
             LazyRow(Modifier.padding(horizontal = 12.dp).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 item { FilterChip(filter == null, { filter = null }, { Text(stringResource(R.string.transactions_all)) }) }

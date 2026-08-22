@@ -14,6 +14,9 @@ import com.budgetplusplus.core.model.RecurringInput
 import com.budgetplusplus.core.model.RecurringOccurrence
 import com.budgetplusplus.core.model.RecurringTransaction
 import com.budgetplusplus.core.model.TransactionType
+import com.budgetplusplus.core.model.TransactionSearchFilter
+import com.budgetplusplus.core.model.TransactionSearchPage
+import com.budgetplusplus.core.model.SearchCursor
 import kotlinx.coroutines.flow.Flow
 
 interface AccountRepository {
@@ -55,6 +58,10 @@ interface RecurringRepository {
     suspend fun setActive(id: String, active: Boolean)
     suspend fun delete(id: String)
     suspend fun processDue(): Long?
+}
+
+interface SearchRepository {
+    suspend fun search(filter:TransactionSearchFilter,cursor:SearchCursor?,pageSize:Int=50):TransactionSearchPage
 }
 
 interface TransactionRepository {

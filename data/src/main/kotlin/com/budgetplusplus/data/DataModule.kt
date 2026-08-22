@@ -7,6 +7,7 @@ import com.budgetplusplus.data.repository.LocalCategoryRepository
 import com.budgetplusplus.data.repository.LocalDashboardRepository
 import com.budgetplusplus.data.repository.LocalTransactionRepository
 import com.budgetplusplus.data.repository.LocalRecurringRepository
+import com.budgetplusplus.data.repository.LocalSearchRepository
 import com.budgetplusplus.domain.repository.AccountRepository
 import com.budgetplusplus.domain.repository.AnalyticsRepository
 import com.budgetplusplus.domain.repository.BudgetRepository
@@ -14,6 +15,7 @@ import com.budgetplusplus.domain.repository.CategoryRepository
 import com.budgetplusplus.domain.repository.DashboardRepository
 import com.budgetplusplus.domain.repository.TransactionRepository
 import com.budgetplusplus.domain.repository.RecurringRepository
+import com.budgetplusplus.domain.repository.SearchRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -29,5 +31,6 @@ abstract class DataModule {
     @Binds @Singleton abstract fun categories(implementation: LocalCategoryRepository): CategoryRepository
     @Binds @Singleton abstract fun dashboard(implementation: LocalDashboardRepository): DashboardRepository
     @Binds @Singleton abstract fun recurring(implementation: LocalRecurringRepository): RecurringRepository
+    @Binds @Singleton abstract fun search(implementation: LocalSearchRepository): SearchRepository
     @Binds @Singleton abstract fun transactions(implementation: LocalTransactionRepository): TransactionRepository
 }
