@@ -10,6 +10,7 @@ plugins {
 }
 
 val staticAnalysis by tasks.registering {
+    notCompatibleWithConfigurationCache("Repository-wide source policy scan")
     group = "verification"
     description = "Checks privacy, localization and repository hygiene rules."
     val sourceFiles = fileTree(rootDir) {
