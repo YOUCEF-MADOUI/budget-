@@ -38,6 +38,6 @@ dependencies {
 
 // A release-candidate build must prove that both the installable debug APK and
 // the unsigned release bundle can be packaged. Signing remains external to Git.
-tasks.named("assembleDebug") {
+tasks.matching { it.name == "assembleDebug" }.configureEach {
     dependsOn("bundleRelease")
 }
