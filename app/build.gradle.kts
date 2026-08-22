@@ -19,6 +19,7 @@ dependencies {
     implementation(project(":feature:backup"))
     implementation(project(":feature:security"))
     implementation(project(":feature:futurepayments"))
+    implementation(project(":feature:favorites"))
     implementation(project(":data"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)

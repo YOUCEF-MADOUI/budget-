@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 data class CategoryDetails(
     val id: String, val kind: String, val nameKey: String?, val customName: String?,
-    val iconKey: String, val colorKey: String, val isSystem: Boolean, val isArchived: Boolean,
+    val iconKey: String, val colorKey: String, val mediaId:String?, val isSystem: Boolean, val isArchived: Boolean,
     val usageCount: Int,
 )
 data class SubcategoryDetails(
@@ -24,7 +24,7 @@ interface CategoryDao {
     fun observeAll(kind: CategoryKind?): Flow<List<CategoryEntity>>
 
     @Query("""SELECT c.id, c.kind, c.name_key AS nameKey, c.custom_name AS customName,
-        c.icon_key AS iconKey, c.color_key AS colorKey, c.is_system AS isSystem, c.is_archived AS isArchived,
+        c.icon_key AS iconKey, c.color_key AS colorKey, c.media_id AS mediaId, c.is_system AS isSystem, c.is_archived AS isArchived,
         (SELECT COUNT(*) FROM finance_transactions t WHERE t.category_id = c.id AND t.deleted_at IS NULL) AS usageCount
         FROM categories c WHERE c.deleted_at IS NULL ORDER BY c.is_archived, c.display_order, c.custom_name""")
     fun observeDetails(): Flow<List<CategoryDetails>>

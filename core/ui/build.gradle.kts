@@ -5,4 +5,7 @@ plugins {
 
 dependencies {
     api(project(":core:designsystem"))
+    implementation(project(":core:model"))
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.core.ktx)
 }

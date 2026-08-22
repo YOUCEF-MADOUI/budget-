@@ -26,8 +26,10 @@ import com.budgetplusplus.core.designsystem.components.BudgetTopAppBar
 import com.budgetplusplus.core.designsystem.icons.BudgetIcons
 import com.budgetplusplus.core.model.Category
 import com.budgetplusplus.core.model.CategoryKind
+import com.budgetplusplus.core.model.CropMode
 import com.budgetplusplus.core.model.Subcategory
 import com.budgetplusplus.domain.repository.CategoryRepository
+import com.budgetplusplus.domain.repository.MediaRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,7 +39,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class CategoriesViewModel @Inject constructor(private val repository: CategoryRepository) : ViewModel() {
+class CategoriesViewModel @Inject constructor(private val repository: CategoryRepository, private val mediaRepository: MediaRepository) : ViewModel() {
     val categories = repository.observeCategories().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
     val subcategories = repository.observeSubcategories().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
     private val _hasError = MutableStateFlow(false); val hasError = _hasError.asStateFlow()
@@ -49,6 +51,7 @@ class CategoriesViewModel @Inject constructor(private val repository: CategoryRe
     fun archive(category: Category, replacement: String?, done: () -> Unit) = action({ repository.setArchived(category.id, !category.isArchived, replacement) }, done)
     fun archiveSub(value: Subcategory, replacement: String?, done: () -> Unit) = action({ repository.setSubcategoryArchived(value.id, !value.isArchived, replacement) }, done)
     fun delete(category: Category, replacement: String?, done: () -> Unit) = action({ repository.delete(category.id, replacement) }, done)
+    fun media(categoryId:String,uri:String,crop:CropMode,done:()->Unit)=action({val asset=mediaRepository.importMedia(uri,crop);mediaRepository.attachToCategory(categoryId,asset.id)},done)
     fun clearError() { _hasError.value = false }
 }
 
@@ -75,8 +78,8 @@ fun CategoriesScreen(onBack: (() -> Unit)?, viewModel: CategoriesViewModel = hil
             } }
         }
     }
-    if (showCreate) CategoryEditorDialog(null, selectedKind, { showCreate = false }) { n,k,i,c -> viewModel.add(n,k,i,c) { showCreate = false } }
-    editing?.let { value -> CategoryEditorDialog(value, value.kind, { editing = null }) { n,_,i,c -> viewModel.update(value,n,i,c) { editing = null } } }
+    if (showCreate) CategoryEditorDialog(null, selectedKind, { showCreate = false }, null) { n,k,i,c -> viewModel.add(n,k,i,c) { showCreate = false } }
+    editing?.let { value -> CategoryEditorDialog(value, value.kind, { editing = null }, {uri,crop->viewModel.media(value.id,uri,crop){}}) { n,_,i,c -> viewModel.update(value,n,i,c) { editing = null } } }
     subEditor?.let { (parent, value) -> SubcategoryEditorDialog(value, { subEditor = null }) { name -> if (value == null) viewModel.addSub(parent,name) { subEditor = null } else viewModel.updateSub(value,name) { subEditor = null } } }
     pending?.let { request -> CategorySafetyDialog(request, categories, { pending = null }) { replacement -> when(request.action) { CategoryAction.ARCHIVE -> viewModel.archive(request.category,replacement) { pending = null }; CategoryAction.DELETE -> viewModel.delete(request.category,replacement) { pending = null }; else -> Unit } } }
     pendingSub?.let { value -> SubcategorySafetyDialog(value, subcategories.filter { it.categoryId == value.categoryId && it.id != value.id && !it.isArchived }, { pendingSub = null }) { replacement -> viewModel.archiveSub(value,replacement) { pendingSub = null } } }
@@ -91,7 +94,7 @@ fun CategoriesScreen(onBack: (() -> Unit)?, viewModel: CategoriesViewModel = hil
     ); if (expanded) children.forEach { sub -> ListItem(modifier=Modifier.padding(start = 28.dp), headlineContent={Text(sub.name)}, supportingContent={Text(stringResource(R.string.categories_operation_count,sub.usageCount))}, trailingContent={ Row { TextButton({editSub(sub)}){Text(stringResource(R.string.categories_edit))}; TextButton({archiveSub(sub)}){Text(stringResource(if(sub.isArchived) R.string.categories_restore else R.string.categories_archive))} } }) } } }
 }
 
-@Composable private fun CategoryEditorDialog(value: Category?, initialKind: CategoryKind, dismiss:()->Unit, save:(String,CategoryKind,String,String)->Unit){ var name by remember{mutableStateOf(value?.customName.orEmpty())}; var kind by remember{mutableStateOf(initialKind)}; var icon by remember{mutableStateOf(value?.iconKey?:"category")}; var color by remember{mutableStateOf(value?.colorKey?:"primary")}; AlertDialog(onDismissRequest=dismiss,title={Text(stringResource(if(value==null)R.string.categories_add_title else R.string.categories_edit_title))},text={LazyColumn(verticalArrangement=Arrangement.spacedBy(12.dp)){item{BudgetTextField(name,{name=it},stringResource(R.string.categories_name))};if(value==null)item{Row{CategoryKind.entries.forEach{FilterChip(kind==it,{kind=it},{Text(kindLabel(it))},Modifier.padding(end=6.dp))}}};item{Text(stringResource(R.string.categories_icon));LazyRow{items(iconOptions){key->FilterChip(icon==key,{icon=key},{Icon(categoryIcon(key),stringResource(iconLabel(key)))},Modifier.padding(end=6.dp))}}};item{Text(stringResource(R.string.categories_color));LazyRow{items(colorOptions){key->FilterChip(color==key,{color=key},{Box(Modifier.size(24.dp).background(categoryColor(key),CircleShape))},Modifier.padding(end=6.dp))}}}}},confirmButton={TextButton({save(name.trim(),kind,icon,color)},enabled=name.isNotBlank()&&name.length<=60){Text(stringResource(R.string.categories_save))}},dismissButton={TextButton(dismiss){Text(stringResource(R.string.categories_cancel))}}) }
+@Composable private fun CategoryEditorDialog(value: Category?, initialKind: CategoryKind, dismiss:()->Unit, media:((String,CropMode)->Unit)?, save:(String,CategoryKind,String,String)->Unit){ var name by remember{mutableStateOf(value?.customName.orEmpty())}; var kind by remember{mutableStateOf(initialKind)}; var icon by remember{mutableStateOf(value?.iconKey?:"category")}; var color by remember{mutableStateOf(value?.colorKey?:"primary")}; AlertDialog(onDismissRequest=dismiss,title={Text(stringResource(if(value==null)R.string.categories_add_title else R.string.categories_edit_title))},text={LazyColumn(verticalArrangement=Arrangement.spacedBy(12.dp)){item{BudgetTextField(name,{name=it},stringResource(R.string.categories_name))};if(value==null)item{Row{CategoryKind.entries.forEach{FilterChip(kind==it,{kind=it},{Text(kindLabel(it))},Modifier.padding(end=6.dp))}}};item{Text(stringResource(R.string.categories_icon));LazyRow{items(iconOptions){key->FilterChip(icon==key,{icon=key},{Icon(categoryIcon(key),stringResource(iconLabel(key)))},Modifier.padding(end=6.dp))}}};if(media!=null)item{com.budgetplusplus.core.ui.MediaPickerButton(media)};item{Text(stringResource(R.string.categories_color));LazyRow{items(colorOptions){key->FilterChip(color==key,{color=key},{Box(Modifier.size(24.dp).background(categoryColor(key),CircleShape))},Modifier.padding(end=6.dp))}}}}},confirmButton={TextButton({save(name.trim(),kind,icon,color)},enabled=name.isNotBlank()&&name.length<=60){Text(stringResource(R.string.categories_save))}},dismissButton={TextButton(dismiss){Text(stringResource(R.string.categories_cancel))}}) }
 @Composable private fun SubcategoryEditorDialog(value:Subcategory?,dismiss:()->Unit,save:(String)->Unit){var name by remember{mutableStateOf(value?.name.orEmpty())};AlertDialog(onDismissRequest=dismiss,title={Text(stringResource(if(value==null)R.string.categories_new_subcategory else R.string.categories_edit_subcategory))},text={BudgetTextField(name,{name=it},stringResource(R.string.categories_name))},confirmButton={TextButton({save(name.trim())},enabled=name.isNotBlank()&&name.length<=60){Text(stringResource(R.string.categories_save))}},dismissButton={TextButton(dismiss){Text(stringResource(R.string.categories_cancel))}})}
 
 @Composable private fun CategorySafetyDialog(request:PendingCategoryAction,categories:List<Category>,dismiss:()->Unit,confirm:(String?)->Unit){val source=request.category;val choices=categories.filter{it.id!=source.id&&it.kind==source.kind&&!it.isArchived};var replacement by remember{mutableStateOf<String?>(null)};val needs=source.usageCount>0 && (request.action==CategoryAction.DELETE || !source.isArchived);AlertDialog(onDismissRequest=dismiss,title={Text(stringResource(if(request.action==CategoryAction.DELETE)R.string.categories_delete_title else if(source.isArchived)R.string.categories_restore_title else R.string.categories_archive_title))},text={Column(verticalArrangement=Arrangement.spacedBy(8.dp)){Text(stringResource(if(needs)R.string.categories_reassign_required else R.string.categories_safe_action,source.usageCount));if(needs)choices.forEach{c->FilterChip(replacement==c.id,{replacement=c.id},{Text(categoryLabel(c))})}}},confirmButton={TextButton({confirm(replacement)},enabled=!needs||replacement!=null){Text(stringResource(if(request.action==CategoryAction.DELETE)R.string.categories_delete else if(source.isArchived)R.string.categories_restore else R.string.categories_archive))}},dismissButton={TextButton(dismiss){Text(stringResource(R.string.categories_cancel))}})}

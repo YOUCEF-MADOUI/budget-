@@ -77,4 +77,4 @@
     <string name="ds_demo_accounts">Accounts</string>
     <string name="ds_demo_analysis">Analysis</string>
     <string name="ds_demo_variation">Positive change of 5.2%</string>
-</resources>
+<string name="icon_food">Food</string><string name="icon_drink">Drink</string><string name="icon_restaurant">Restaurant</string><string name="icon_home">Home</string><string name="icon_construction">Construction</string><string name="icon_plumbing">Plumbing</string><string name="icon_car">Car</string><string name="icon_bus">Bus</string><string name="icon_fuel">Fuel</string><string name="icon_health">Health</string><string name="icon_pharmacy">Pharmacy</string><string name="icon_sport">Sport</string><string name="icon_games">Games</string><string name="icon_work">Work</string><string name="icon_tools">Tools</string><string name="icon_service">Service</string><string name="icon_invoice">Invoice</string><string name="icon_phone">Phone</string><string name="icon_other">Other</string></resources>

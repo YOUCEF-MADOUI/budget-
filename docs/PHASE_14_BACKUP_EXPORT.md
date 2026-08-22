@@ -8,7 +8,7 @@ La clé AES-256 est dérivée exclusivement du mot de passe utilisateur avec PBK
 
 ## Compatibilité
 
-Le lecteur accepte les formats d'archive 1 et 2. La version 1 historique utilise 120 000 itérations et l'authentification GCM ; la version 2 ajoute le SHA-256 interne et la date. Les bases SQLite de schémas 1 à 10 sont acceptées et les migrations Room normales sont appliquées au prochain démarrage.
+Le lecteur accepte les formats d'archive 1, 2 et 3. La version 1 historique utilise 120 000 itérations et l'authentification GCM ; la version 2 ajoute le SHA-256 interne et la date ; la version 3 inclut les médias privés dans le contenu chiffré. Les bases SQLite de schémas 1 à 11 sont acceptées et les migrations Room normales sont appliquées au prochain démarrage.
 
 ## Aperçu et restauration atomique
 

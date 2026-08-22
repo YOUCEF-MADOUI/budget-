@@ -5,6 +5,11 @@ import com.budgetplusplus.core.model.AnalyticsData
 import com.budgetplusplus.core.model.AccountType
 import com.budgetplusplus.core.model.BackupPreview
 import com.budgetplusplus.core.model.FuturePayment
+import com.budgetplusplus.core.model.MediaAsset
+import com.budgetplusplus.core.model.CropMode
+import com.budgetplusplus.core.model.Favorite
+import com.budgetplusplus.core.model.FavoriteInput
+import com.budgetplusplus.core.model.FavoriteClickResult
 import com.budgetplusplus.core.model.FuturePaymentInput
 import com.budgetplusplus.core.model.DuePayment
 import com.budgetplusplus.core.model.DueReminder
@@ -49,6 +54,23 @@ interface CategoryRepository {
     suspend fun setArchived(id: String, archived: Boolean, replacementId: String? = null)
     suspend fun setSubcategoryArchived(id: String, archived: Boolean, replacementId: String? = null)
     suspend fun delete(id: String, replacementId: String? = null)
+}
+
+interface MediaRepository {
+    suspend fun importMedia(sourceUri:String,cropMode:CropMode):MediaAsset
+    suspend fun attachToAccount(accountId:String,mediaId:String?)
+    suspend fun attachToCategory(categoryId:String,mediaId:String?)
+    suspend fun attachToTransaction(transactionId:String,mediaId:String?)
+    suspend fun mediaFilePath(mediaId:String,thumbnail:Boolean=true):String?
+}
+
+interface FavoriteRepository {
+    fun observeFavorites():Flow<List<Favorite>>
+    suspend fun save(input:FavoriteInput):String
+    suspend fun setArchived(id:String,archived:Boolean)
+    suspend fun recordImmediateClick(favoriteId:String,nowEpochMillis:Long=System.currentTimeMillis()):FavoriteClickResult
+    suspend fun createOperation(favoriteId:String,requestId:String,quantity:Int,unitPriceMinor:Long,date:String):FavoriteClickResult
+    suspend fun undo(transactionId:String)
 }
 
 interface FuturePaymentRepository {
@@ -120,7 +142,7 @@ interface TransactionRepository {
         subcategoryId: String? = null,
         currencyCode: String = "DZD",
         localDate: String? = null,
-    )
+    ): String
     suspend fun update(
         id: String,
         type: TransactionType,

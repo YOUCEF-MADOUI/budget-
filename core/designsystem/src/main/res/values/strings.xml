@@ -77,4 +77,4 @@
     <string name="ds_demo_accounts">Comptes</string>
     <string name="ds_demo_analysis">Analyse</string>
     <string name="ds_demo_variation">Variation positive de 5,2 %</string>
-</resources>
+<string name="icon_food">Alimentation</string><string name="icon_drink">Boisson</string><string name="icon_restaurant">Restaurant</string><string name="icon_home">Maison</string><string name="icon_construction">Chantier</string><string name="icon_plumbing">Plomberie</string><string name="icon_car">Voiture</string><string name="icon_bus">Bus</string><string name="icon_fuel">Carburant</string><string name="icon_health">Santé</string><string name="icon_pharmacy">Pharmacie</string><string name="icon_sport">Sport</string><string name="icon_games">Jeux</string><string name="icon_work">Travail</string><string name="icon_tools">Outils</string><string name="icon_service">Service</string><string name="icon_invoice">Facture</string><string name="icon_phone">Téléphone</string><string name="icon_other">Autre</string></resources>

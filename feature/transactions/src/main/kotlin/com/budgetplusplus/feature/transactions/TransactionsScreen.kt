@@ -42,7 +42,7 @@ class TransactionsViewModel @Inject constructor(accountsRepository: AccountRepos
 }
 
 @Composable
-fun TransactionsScreen(onBack: (() -> Unit)?, onAdvancedSearch: () -> Unit, onCreate: () -> Unit, onEdit: (String) -> Unit, viewModel: TransactionsViewModel = hiltViewModel()) {
+fun TransactionsScreen(onBack: (() -> Unit)?, onAdvancedSearch: () -> Unit, onCreate: () -> Unit, onEdit: (String) -> Unit, onFavorites: () -> Unit, viewModel: TransactionsViewModel = hiltViewModel()) {
     val rows by viewModel.transactions.collectAsStateWithLifecycle()
     val accounts by viewModel.accounts.collectAsStateWithLifecycle()
     val hasError by viewModel.hasError.collectAsStateWithLifecycle()
@@ -59,7 +59,7 @@ fun TransactionsScreen(onBack: (() -> Unit)?, onAdvancedSearch: () -> Unit, onCr
         topBar = { BudgetTopAppBar(stringResource(R.string.transactions_title), onBackClick = onBack) },
         floatingActionButton = { FloatingActionButton(onClick = { if (accounts.isNotEmpty()) onCreate() }) { Text(stringResource(R.string.transactions_add_symbol)) } },
     ) { padding -> Column(Modifier.padding(padding).fillMaxSize()) {
-        Button(onClick = onAdvancedSearch, modifier = Modifier.padding(horizontal = 12.dp).fillMaxWidth()) { Text(stringResource(R.string.transactions_advanced_search)) }
+        Row(Modifier.padding(horizontal = 12.dp).fillMaxWidth(),horizontalArrangement=Arrangement.spacedBy(8.dp)){Button(onClick = onAdvancedSearch,modifier=Modifier.weight(1f)){Text(stringResource(R.string.transactions_advanced_search))};Button(onClick=onFavorites,modifier=Modifier.weight(1f)){Text(stringResource(R.string.transactions_favorites))}}
         if (rows.isNotEmpty()) {
             LazyRow(Modifier.padding(horizontal = 12.dp).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 item { FilterChip(filter == null, { filter = null }, { Text(stringResource(R.string.transactions_all)) }) }

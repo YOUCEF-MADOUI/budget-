@@ -26,8 +26,9 @@ data class WorkspaceEntity(
     foreignKeys = [
         ForeignKey(entity = WorkspaceEntity::class, parentColumns = ["id"], childColumns = ["workspace_id"], onDelete = ForeignKey.CASCADE),
         ForeignKey(entity = AccountEntity::class, parentColumns = ["id"], childColumns = ["parent_account_id"], onDelete = ForeignKey.RESTRICT),
+        ForeignKey(entity = MediaAssetEntity::class, parentColumns = ["id"], childColumns = ["media_id"], onDelete = ForeignKey.SET_NULL),
     ],
-    indices = [Index("workspace_id", "is_archived", "deleted_at"), Index("name"), Index("parent_account_id", "display_order", "deleted_at")],
+    indices = [Index("workspace_id", "is_archived", "deleted_at"), Index("name"), Index("parent_account_id", "display_order", "deleted_at"), Index("media_id")],
 )
 data class AccountEntity(
     @PrimaryKey val id: String,
@@ -46,12 +47,13 @@ data class AccountEntity(
     @ColumnInfo(name = "updated_at") val updatedAt: Long,
     @ColumnInfo(name = "deleted_at") val deletedAt: Long? = null,
     @ColumnInfo(name = "parent_account_id") val parentAccountId: String? = null,
+    @ColumnInfo(name = "media_id") val mediaId: String? = null,
 )
 
 @Entity(
     tableName = "categories",
-    foreignKeys = [ForeignKey(entity = WorkspaceEntity::class, parentColumns = ["id"], childColumns = ["workspace_id"], onDelete = ForeignKey.CASCADE)],
-    indices = [Index("workspace_id", "kind", "is_archived"), Index(value = ["workspace_id", "custom_name", "kind"], unique = true)],
+    foreignKeys = [ForeignKey(entity = WorkspaceEntity::class, parentColumns = ["id"], childColumns = ["workspace_id"], onDelete = ForeignKey.CASCADE), ForeignKey(entity = MediaAssetEntity::class, parentColumns = ["id"], childColumns = ["media_id"], onDelete = ForeignKey.SET_NULL)],
+    indices = [Index("workspace_id", "kind", "is_archived"), Index(value = ["workspace_id", "custom_name", "kind"], unique = true), Index("media_id")],
 )
 data class CategoryEntity(
     @PrimaryKey val id: String,
@@ -67,6 +69,7 @@ data class CategoryEntity(
     @ColumnInfo(name = "created_at") val createdAt: Long,
     @ColumnInfo(name = "updated_at") val updatedAt: Long,
     @ColumnInfo(name = "deleted_at") val deletedAt: Long? = null,
+    @ColumnInfo(name = "media_id") val mediaId: String? = null,
 )
 
 @Entity(
@@ -95,12 +98,14 @@ data class SubcategoryEntity(
         ForeignKey(entity = AccountEntity::class, parentColumns = ["id"], childColumns = ["destination_account_id"], onDelete = ForeignKey.RESTRICT),
         ForeignKey(entity = CategoryEntity::class, parentColumns = ["id"], childColumns = ["category_id"], onDelete = ForeignKey.SET_NULL),
         ForeignKey(entity = SubcategoryEntity::class, parentColumns = ["id"], childColumns = ["subcategory_id"], onDelete = ForeignKey.SET_NULL),
+        ForeignKey(entity = MediaAssetEntity::class, parentColumns = ["id"], childColumns = ["media_id"], onDelete = ForeignKey.SET_NULL),
+        ForeignKey(entity = FavoriteEntity::class, parentColumns = ["id"], childColumns = ["favorite_id"], onDelete = ForeignKey.SET_NULL),
     ],
     indices = [
         Index("workspace_id", "local_date", "deleted_at"), Index("account_id", "occurred_at", "deleted_at"),
         Index("destination_account_id", "occurred_at", "deleted_at"), Index("category_id", "local_date", "type", "deleted_at"),
         Index("occurred_at", "type", "deleted_at"), Index("category_id", "occurred_at", "deleted_at"), Index("subcategory_id"), Index("amount_minor", "occurred_at", "deleted_at"),
-        Index("deleted_at", "occurred_at", "id"), Index("deleted_at", "amount_minor", "id"), Index("deleted_at", "local_date", "type", "category_id"),
+        Index("deleted_at", "occurred_at", "id"), Index("deleted_at", "amount_minor", "id"), Index("deleted_at", "local_date", "type", "category_id"), Index("media_id"), Index("favorite_id"),
     ],
 )
 data class FinanceTransactionEntity(
@@ -123,4 +128,8 @@ data class FinanceTransactionEntity(
     @ColumnInfo(name = "created_at") val createdAt: Long,
     @ColumnInfo(name = "updated_at") val updatedAt: Long,
     @ColumnInfo(name = "deleted_at") val deletedAt: Long? = null,
+    @ColumnInfo(name = "media_id") val mediaId: String? = null,
+    @ColumnInfo(name = "favorite_id") val favoriteId: String? = null,
+    @ColumnInfo(name = "unit_price_minor") val unitPriceMinor: Long? = null,
+    @ColumnInfo(defaultValue = "1") val quantity: Int = 1,
 )

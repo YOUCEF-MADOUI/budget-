@@ -77,4 +77,4 @@
     <string name="ds_demo_accounts">الحسابات</string>
     <string name="ds_demo_analysis">التحليل</string>
     <string name="ds_demo_variation">تغير موجب بنسبة 5.2٪</string>
-</resources>
+<string name="icon_food">طعام</string><string name="icon_drink">مشروب</string><string name="icon_restaurant">مطعم</string><string name="icon_home">منزل</string><string name="icon_construction">ورشة</string><string name="icon_plumbing">سباكة</string><string name="icon_car">سيارة</string><string name="icon_bus">حافلة</string><string name="icon_fuel">وقود</string><string name="icon_health">صحة</string><string name="icon_pharmacy">صيدلية</string><string name="icon_sport">رياضة</string><string name="icon_games">ألعاب</string><string name="icon_work">عمل</string><string name="icon_tools">أدوات</string><string name="icon_service">خدمة</string><string name="icon_invoice">فاتورة</string><string name="icon_phone">هاتف</string><string name="icon_other">أخرى</string></resources>

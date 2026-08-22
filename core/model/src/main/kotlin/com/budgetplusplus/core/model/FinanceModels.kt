@@ -18,6 +18,7 @@ data class Account(
     val description: String = "",
     val displayOrder: Int = 0,
     val parentAccountId: String? = null,
+    val mediaId: String? = null,
 )
 
 data class AccountOperationTotals(val incomeMinor: Long = 0, val expenseMinor: Long = 0, val operationCount: Int = 0)
@@ -42,6 +43,7 @@ data class Category(
     val iconKey: String = "category",
     val colorKey: String = "primary",
     val usageCount: Int = 0,
+    val mediaId: String? = null,
 )
 
 data class Subcategory(
@@ -71,4 +73,8 @@ data class FinanceTransaction(
     val subcategoryName: String? = null,
     val localDate: String? = null,
     val zoneId: String = "UTC",
+    val mediaId: String? = null,
+    val favoriteId: String? = null,
+    val unitPriceMinor: Long? = null,
+    val quantity: Int = 1,
 )

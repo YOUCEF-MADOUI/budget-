@@ -30,7 +30,7 @@ class LocalDashboardRepository @Inject constructor(
             dashboard.observeDailyDeltas(fromInclusive, toExclusive),
             dashboard.observeCategoryTotals(fromInclusive, toExclusive),
         ) { accountRows, totals, opening, deltas, categories ->
-            val accountModels = accountRows.map { row -> Account(row.id, row.name, AccountType.valueOf(row.type), row.currencyCode, row.initialBalanceMinor, row.currentBalanceMinor, row.isArchived, row.iconKey, row.colorKey, row.description, row.displayOrder, row.parentAccountId) }
+            val accountModels = accountRows.map { row -> Account(row.id, row.name, AccountType.valueOf(row.type), row.currencyCode, row.initialBalanceMinor, row.currentBalanceMinor, row.isArchived, row.iconKey, row.colorKey, row.description, row.displayOrder, row.parentAccountId, row.mediaId) }
             DashboardData(
                 totalBalanceMinor = accountModels.filterNot(Account::isArchived).sumOf(Account::currentBalanceMinor),
                 incomeMinor = totals.incomeMinor,
@@ -61,6 +61,10 @@ class LocalDashboardRepository @Inject constructor(
                     subcategoryName = row.subcategoryName,
                     localDate = row.localDate,
                     zoneId = row.zoneId,
+                    mediaId = row.mediaId,
+                    favoriteId = row.favoriteId,
+                    unitPriceMinor = row.unitPriceMinor,
+                    quantity = row.quantity,
                 )
             })
         }

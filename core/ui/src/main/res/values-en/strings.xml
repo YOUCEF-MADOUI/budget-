@@ -1,0 +1,1 @@
+<resources><string name="media_gallery">Gallery</string><string name="media_camera">Camera</string><string name="media_crop_title">Crop image</string><string name="media_crop_message">Choose a square crop or keep the original proportions.</string><string name="media_crop_square">Crop square</string><string name="media_keep_original">Keep original</string></resources>

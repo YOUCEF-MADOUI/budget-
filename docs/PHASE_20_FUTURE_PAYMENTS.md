@@ -30,4 +30,4 @@ Le schéma 10 et `MIGRATION_9_10` ajoutent trois tables et leurs index, sans rec
 
 ## Tests
 
-Les tests couvrent six états, retard, validation des montants, paiements partiels et multiples, idempotence, annulation et restauration du solde, rappels idempotents, DAO/repository, migration 1→10, Lint, analyse statique et charges 10k/50k/100k.
+Les tests couvrent six états, retard, validation des montants, paiements partiels et multiples, idempotence, annulation et restauration du solde, rappels idempotents, DAO/repository, migration 1→11, Lint, analyse statique et charges 10k/50k/100k.

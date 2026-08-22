@@ -7,6 +7,8 @@ import com.budgetplusplus.data.repository.LocalBackupRepository
 import com.budgetplusplus.data.repository.LocalCategoryRepository
 import com.budgetplusplus.data.repository.LocalDashboardRepository
 import com.budgetplusplus.data.repository.LocalFuturePaymentRepository
+import com.budgetplusplus.data.repository.LocalFavoriteRepository
+import com.budgetplusplus.data.repository.LocalMediaRepository
 import com.budgetplusplus.data.repository.LocalTransactionRepository
 import com.budgetplusplus.data.repository.LocalRecurringRepository
 import com.budgetplusplus.data.repository.LocalSearchRepository
@@ -18,6 +20,8 @@ import com.budgetplusplus.domain.repository.BackupRepository
 import com.budgetplusplus.domain.repository.CategoryRepository
 import com.budgetplusplus.domain.repository.DashboardRepository
 import com.budgetplusplus.domain.repository.FuturePaymentRepository
+import com.budgetplusplus.domain.repository.FavoriteRepository
+import com.budgetplusplus.domain.repository.MediaRepository
 import com.budgetplusplus.domain.repository.TransactionRepository
 import com.budgetplusplus.domain.repository.RecurringRepository
 import com.budgetplusplus.domain.repository.SearchRepository
@@ -36,6 +40,8 @@ abstract class DataModule {
     @Binds @Singleton abstract fun backup(implementation: LocalBackupRepository): BackupRepository
     @Binds @Singleton abstract fun budgets(implementation: LocalBudgetRepository): BudgetRepository
     @Binds @Singleton abstract fun categories(implementation: LocalCategoryRepository): CategoryRepository
+    @Binds @Singleton abstract fun media(implementation: LocalMediaRepository): MediaRepository
+    @Binds @Singleton abstract fun favorites(implementation: LocalFavoriteRepository): FavoriteRepository
     @Binds @Singleton abstract fun futurePayments(implementation: LocalFuturePaymentRepository): FuturePaymentRepository
     @Binds @Singleton abstract fun dashboard(implementation: LocalDashboardRepository): DashboardRepository
     @Binds @Singleton abstract fun recurring(implementation: LocalRecurringRepository): RecurringRepository

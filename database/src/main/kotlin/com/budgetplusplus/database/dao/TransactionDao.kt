@@ -11,7 +11,7 @@ data class TransactionDetails(
     val accountId: String, val accountName: String, val destinationAccountId: String?,
     val destinationAccountName: String?, val categoryId: String?, val categoryNameKey: String?,
     val categoryCustomName: String?, val subcategoryId: String?, val subcategoryName: String?,
-    val occurredAt: Long, val localDate: String, val zoneId: String, val description: String,
+    val occurredAt: Long, val localDate: String, val zoneId: String, val description: String, val mediaId:String?, val favoriteId:String?, val unitPriceMinor:Long?, val quantity:Int,
 )
 
 @Dao
@@ -20,7 +20,7 @@ interface TransactionDao {
       t.account_id AS accountId, a.name AS accountName, t.destination_account_id AS destinationAccountId,
       da.name AS destinationAccountName, t.category_id AS categoryId, c.name_key AS categoryNameKey,
       c.custom_name AS categoryCustomName, t.subcategory_id AS subcategoryId, s.custom_name AS subcategoryName,
-      t.occurred_at AS occurredAt, t.local_date AS localDate, t.zone_id AS zoneId, t.description
+      t.occurred_at AS occurredAt, t.local_date AS localDate, t.zone_id AS zoneId, t.description, t.media_id AS mediaId, t.favorite_id AS favoriteId, t.unit_price_minor AS unitPriceMinor, t.quantity
       FROM finance_transactions t JOIN accounts a ON a.id = t.account_id
       LEFT JOIN accounts da ON da.id = t.destination_account_id LEFT JOIN categories c ON c.id = t.category_id
       LEFT JOIN subcategories s ON s.id = t.subcategory_id
@@ -33,11 +33,12 @@ interface TransactionDao {
       t.account_id AS accountId, a.name AS accountName, t.destination_account_id AS destinationAccountId,
       da.name AS destinationAccountName, t.category_id AS categoryId, c.name_key AS categoryNameKey,
       c.custom_name AS categoryCustomName, t.subcategory_id AS subcategoryId, s.custom_name AS subcategoryName,
-      t.occurred_at AS occurredAt, t.local_date AS localDate, t.zone_id AS zoneId, t.description FROM finance_transactions t
+      t.occurred_at AS occurredAt, t.local_date AS localDate, t.zone_id AS zoneId, t.description, t.media_id AS mediaId, t.favorite_id AS favoriteId, t.unit_price_minor AS unitPriceMinor, t.quantity FROM finance_transactions t
       JOIN accounts a ON a.id = t.account_id LEFT JOIN accounts da ON da.id = t.destination_account_id
       LEFT JOIN categories c ON c.id = t.category_id LEFT JOIN subcategories s ON s.id = t.subcategory_id
       WHERE t.id = :id AND t.deleted_at IS NULL""") suspend fun getDetails(id: String): TransactionDetails?
     @Insert suspend fun insert(entity: FinanceTransactionEntity)
     @androidx.room.Update suspend fun update(entity: FinanceTransactionEntity)
+    @Query("UPDATE finance_transactions SET amount_minor=:amount,unit_price_minor=:unitPrice,quantity=:quantity,favorite_id=:favoriteId,updated_at=:now WHERE id=:id AND deleted_at IS NULL") suspend fun updateFavoriteOperation(id:String,amount:Long,unitPrice:Long,quantity:Int,favoriteId:String,now:Long):Int
     @Query("UPDATE finance_transactions SET deleted_at = :now, updated_at = :now WHERE id = :id") suspend fun softDelete(id: String, now: Long)
 }

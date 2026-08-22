@@ -11,5 +11,6 @@ class RoomConvertersTest {
   assertEquals(BudgetScope.CATEGORY, converter.budgetScope(converter.budgetScope(BudgetScope.CATEGORY)))
   assertEquals(BudgetPeriodType.CUSTOM, converter.budgetPeriodType(converter.budgetPeriodType(BudgetPeriodType.CUSTOM)))
   assertEquals(RecurrenceFrequency.MONTHLY, converter.recurrenceFrequency(converter.recurrenceFrequency(RecurrenceFrequency.MONTHLY)))
+  assertEquals(FavoriteBehavior.IMMEDIATE, converter.favoriteBehavior(converter.favoriteBehavior(FavoriteBehavior.IMMEDIATE)))
  }
 }

@@ -7,6 +7,7 @@ import com.budgetplusplus.core.model.BudgetScope
 import com.budgetplusplus.core.model.CategoryKind
 import com.budgetplusplus.core.model.RecurrenceFrequency
 import com.budgetplusplus.core.model.DuePriority
+import com.budgetplusplus.core.model.FavoriteBehavior
 import com.budgetplusplus.core.model.RecurrenceOccurrenceStatus
 import com.budgetplusplus.core.model.TransactionType
 
@@ -27,4 +28,6 @@ class RoomConverters {
     @TypeConverter fun occurrenceStatus(value: String): RecurrenceOccurrenceStatus = RecurrenceOccurrenceStatus.valueOf(value)
     @TypeConverter fun duePriority(value: DuePriority): String = value.name
     @TypeConverter fun duePriority(value: String): DuePriority = DuePriority.valueOf(value)
+    @TypeConverter fun favoriteBehavior(value: FavoriteBehavior): String = value.name
+    @TypeConverter fun favoriteBehavior(value: String): FavoriteBehavior = FavoriteBehavior.valueOf(value)
 }
