@@ -99,7 +99,7 @@ fun BudgetPlusPlusApp() {
             composable(AppDestination.Budgets.route) { BudgetsScreen(onBack = navController::navigateUp) }
             composable(AppDestination.Recurring.route) { RecurringScreen(onBack = navController::navigateUp) }
             composable(AppDestination.Analytics.route) { AnalyticsScreen(onBack = null) }
-            composable(AppDestination.Search.route) { SearchScreen(onBack = navController::navigateUp, onEdit = { id -> navController.navigate("transactions/edit/$id") }, onFavorites = { navController.navigate(AppDestination.Favorites.route) }) }
+            composable(AppDestination.Search.route) { SearchScreen(onBack = navController::navigateUp, onEdit = { id -> navController.navigate("transactions/edit/$id") }) }
             composable(AppDestination.Backup.route) { BackupScreen(onBack = navController::navigateUp) }
             composable(AppDestination.Security.route) { SecuritySettingsScreen(onBack = navController::navigateUp) }
             composable(AppDestination.FuturePayments.route) { FuturePaymentsScreen(onBack = navController::navigateUp) }
