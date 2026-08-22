@@ -52,7 +52,26 @@ sealed interface State{data object Loading:State;data object Error:State;data cl
 private fun percent(delta:Long,previous:Long):Int=if(previous==0L)0 else BigDecimal.valueOf(delta).multiply(BigDecimal.valueOf(100)).divide(BigDecimal.valueOf(kotlin.math.abs(previous)),0,RoundingMode.HALF_UP).coerceIn(BigDecimal.valueOf(Int.MIN_VALUE.toLong()),BigDecimal.valueOf(Int.MAX_VALUE.toLong())).toInt()
 @Composable private fun Averages(d:AnalyticsData){BudgetCard(Modifier.fillMaxWidth()){Column(verticalArrangement=Arrangement.spacedBy(8.dp)){Text(stringResource(R.string.analytics_averages),style=MaterialTheme.typography.titleMedium);Text(stringResource(R.string.analytics_daily_income));MoneyText(d.dailyAverageIncomeMinor,d.currencyCode,tone=AmountTone.Income);Text(stringResource(R.string.analytics_daily));MoneyText(d.dailyAverageExpenseMinor,d.currencyCode,tone=AmountTone.Expense);Text(stringResource(R.string.analytics_monthly_income));MoneyText(d.monthlyAverageIncomeMinor,d.currencyCode,tone=AmountTone.Income);Text(stringResource(R.string.analytics_monthly));MoneyText(d.monthlyAverageExpenseMinor,d.currencyCode,tone=AmountTone.Expense)}}}
 
-@Composable private fun EvolutionChart(points:List<AnalyticsPoint>,modifier:Modifier){val income=Color(0xFF2E7D32);val expense=MaterialTheme.colorScheme.error;val net=MaterialTheme.colorScheme.primary;val desc=stringResource(R.string.analytics_chart_description,points.size);val maximum=(points.maxOfOrNull{maxOf(it.incomeMinor,it.expenseMinor,kotlin.math.abs(it.netMinor))}?:1).coerceAtLeast(1);Canvas(modifier.semantics{contentDescription=desc}){val step=size.width/maxOf(1,points.size);points.forEachIndexed{i,v->val x=step*(i+.5f);fun y(n:Long)=size.height-(kotlin.math.abs(n).toFloat()/maximum.toFloat())*size.height;drawLine(income,Offset(x-4.dp.toPx(),size.height),Offset(x-4.dp.toPx(),y(v.incomeMinor)),4.dp.toPx());drawLine(expense,Offset(x+4.dp.toPx(),size.height),Offset(x+4.dp.toPx(),y(v.expenseMinor)),4.dp.toPx());drawCircle(net,3.dp.toPx(),Offset(x,y(v.netMinor)))}}}
+@Composable
+private fun EvolutionChart(points: List<AnalyticsPoint>, modifier: Modifier) {
+    val income = Color(0xFF2E7D32)
+    val expense = MaterialTheme.colorScheme.error
+    val net = MaterialTheme.colorScheme.primary
+    val description = stringResource(R.string.analytics_chart_description, points.size)
+    val maximum = (points.maxOfOrNull { maxOf(it.incomeMinor, it.expenseMinor, kotlin.math.abs(it.netMinor)) } ?: 1L).coerceAtLeast(1L)
+    Canvas(modifier.semantics { contentDescription = description }) {
+        val step = size.width / maxOf(1, points.size)
+        points.forEachIndexed { index, value ->
+            val x = step * (index + .5f)
+            val incomeY = size.height - (value.incomeMinor.toFloat() / maximum.toFloat()) * size.height
+            val expenseY = size.height - (value.expenseMinor.toFloat() / maximum.toFloat()) * size.height
+            val netY = size.height - (kotlin.math.abs(value.netMinor).toFloat() / maximum.toFloat()) * size.height
+            drawLine(income, Offset(x - 4.dp.toPx(), size.height), Offset(x - 4.dp.toPx(), incomeY), 4.dp.toPx())
+            drawLine(expense, Offset(x + 4.dp.toPx(), size.height), Offset(x + 4.dp.toPx(), expenseY), 4.dp.toPx())
+            drawCircle(net, 3.dp.toPx(), Offset(x, netY))
+        }
+    }
+}
 @Composable private fun CategoryChart(values:List<AnalyticsCategory>,total:Long,currency:String){if(values.isEmpty()){Text(stringResource(R.string.analytics_no_categories));return};BudgetCard(Modifier.fillMaxWidth()){Column(verticalArrangement=Arrangement.spacedBy(12.dp)){values.take(8).forEachIndexed{i,v->val progress=if(total<=0)0f else (v.amountMinor.toFloat()/total.toFloat()).coerceIn(0f,1f);Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween){Text(stringResource(R.string.analytics_rank,i+1,cat(v)));MoneyText(v.amountMinor,currency)};LinearProgressIndicator({progress},Modifier.fillMaxWidth())}}}}
 @Composable private fun cat(v:AnalyticsCategory)=v.customName?:v.nameKey?.let{systemCategory(it)}?:stringResource(R.string.analytics_system_category)
 @Composable private fun systemCategory(key:String)=stringResource(when(key){"category_food"->R.string.analytics_food;"category_transport"->R.string.analytics_transport;"category_housing"->R.string.analytics_housing;"category_health"->R.string.analytics_health;"category_leisure"->R.string.analytics_leisure;"category_utilities"->R.string.analytics_utilities;"category_education"->R.string.analytics_education;"category_family"->R.string.analytics_family;"category_clothing"->R.string.analytics_clothing;"category_taxes"->R.string.analytics_taxes;else->R.string.analytics_system_category})
