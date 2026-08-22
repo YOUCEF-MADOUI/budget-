@@ -35,6 +35,7 @@ data class AccountEntity(
     @ColumnInfo(name = "initial_balance_minor") val initialBalanceMinor: Long,
     @ColumnInfo(name = "color_key") val colorKey: String = "primary",
     @ColumnInfo(name = "icon_key") val iconKey: String = "account",
+    @ColumnInfo(defaultValue = "''") val description: String = "",
     @ColumnInfo(name = "display_order") val displayOrder: Int = 0,
     @ColumnInfo(name = "is_hidden") val isHidden: Boolean = false,
     @ColumnInfo(name = "is_archived") val isArchived: Boolean = false,

@@ -9,6 +9,7 @@ internal enum class AppDestination(val route: String) {
     Categories("categories"),
     Transactions("transactions"),
     TransactionNew("transactions/new"),
+    TransactionQuick("transactions/new/{type}/{accountId}"),
     TransactionEdit("transactions/edit/{transactionId}"),
     Budgets("budgets"),
     Recurring("recurring"),

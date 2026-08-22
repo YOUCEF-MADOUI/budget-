@@ -25,8 +25,12 @@ import kotlinx.coroutines.flow.Flow
 
 interface AccountRepository {
     fun observeAccounts(): Flow<List<Account>>
+    fun observeTotals(id: String): Flow<com.budgetplusplus.core.model.AccountOperationTotals>
     suspend fun create(name: String, type: AccountType, initialBalanceMinor: Long, currencyCode: String = "DZD")
+    suspend fun update(id: String, name: String, type: AccountType, iconKey: String, colorKey: String, description: String, displayOrder: Int)
     suspend fun setArchived(id: String, archived: Boolean)
+    suspend fun reassignOperations(sourceAccountId: String, targetAccountId: String, transactionIds: Set<String>)
+    suspend fun deleteAndReassign(sourceAccountId: String, targetAccountId: String?)
 }
 
 interface CategoryRepository {

@@ -13,7 +13,13 @@ data class Account(
     val initialBalanceMinor: Long,
     val currentBalanceMinor: Long,
     val isArchived: Boolean = false,
+    val iconKey: String = "account",
+    val colorKey: String = "primary",
+    val description: String = "",
+    val displayOrder: Int = 0,
 )
+
+data class AccountOperationTotals(val incomeMinor: Long = 0, val expenseMinor: Long = 0, val operationCount: Int = 0)
 
 data class Category(
     val id: String,

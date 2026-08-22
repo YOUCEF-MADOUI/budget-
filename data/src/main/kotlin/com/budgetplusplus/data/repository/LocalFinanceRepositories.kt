@@ -29,14 +29,40 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class LocalAccountRepository @Inject constructor(private val dao: AccountDao) : AccountRepository {
-    override fun observeAccounts(): Flow<List<Account>> = dao.observeAll().map { rows -> rows.map { Account(it.id, it.name, AccountType.valueOf(it.type), it.currencyCode, it.initialBalanceMinor, it.currentBalanceMinor, it.isArchived) } }
+class LocalAccountRepository @Inject constructor(private val db: BudgetPlusDatabase, private val dao: AccountDao, private val transactions: TransactionDao) : AccountRepository {
+    override fun observeAccounts(): Flow<List<Account>> = dao.observeAll().map { rows -> rows.map { Account(it.id, it.name, AccountType.valueOf(it.type), it.currencyCode, it.initialBalanceMinor, it.currentBalanceMinor, it.isArchived, it.iconKey, it.colorKey, it.description, it.displayOrder) } }
+    override fun observeTotals(id: String): Flow<com.budgetplusplus.core.model.AccountOperationTotals> = dao.observeTotals(id).map { com.budgetplusplus.core.model.AccountOperationTotals(it.incomeMinor, it.expenseMinor, it.operationCount) }
     override suspend fun create(name: String, type: AccountType, initialBalanceMinor: Long, currencyCode: String) {
-        require(FinanceValidator.isValidName(name))
-        val now = System.currentTimeMillis()
+        require(FinanceValidator.isValidName(name)); val now = System.currentTimeMillis()
         dao.insert(AccountEntity(UUID.randomUUID().toString(), BudgetPlusDatabase.DEFAULT_WORKSPACE_ID, name.trim(), type, currencyCode, initialBalanceMinor, createdAt = now, updatedAt = now))
     }
+    override suspend fun update(id: String, name: String, type: AccountType, iconKey: String, colorKey: String, description: String, displayOrder: Int) {
+        require(FinanceValidator.isValidName(name) && description.length <= 120 && displayOrder >= 0); requireNotNull(dao.get(id)); dao.update(id, name.trim(), type, iconKey, colorKey, description.trim(), displayOrder, System.currentTimeMillis())
+    }
     override suspend fun setArchived(id: String, archived: Boolean) = dao.setArchived(id, archived, System.currentTimeMillis())
+    override suspend fun reassignOperations(sourceAccountId: String, targetAccountId: String, transactionIds: Set<String>) = db.withTransaction {
+        require(sourceAccountId != targetAccountId && dao.exists(sourceAccountId) && dao.exists(targetAccountId) && transactionIds.isNotEmpty())
+        val values = transactions.getEntities(transactionIds); require(values.size == transactionIds.size)
+        values.forEach { value -> transactions.update(reassigned(value, sourceAccountId, targetAccountId)) }
+    }
+    override suspend fun deleteAndReassign(sourceAccountId: String, targetAccountId: String?) = db.withTransaction {
+        require(targetAccountId != sourceAccountId && dao.activeRecurrenceCount(sourceAccountId) == 0)
+        val source = requireNotNull(dao.get(sourceAccountId)); val related = transactions.getRelated(sourceAccountId); val now = System.currentTimeMillis()
+        val target = targetAccountId?.let { requireNotNull(dao.get(it)) }
+        if (related.isNotEmpty()) {
+            val targetId = requireNotNull(targetAccountId)
+            related.forEach { transactions.update(reassigned(it, sourceAccountId, targetId)) }
+        }
+        if (target != null) dao.updateInitialBalance(target.id, Math.addExact(target.initialBalanceMinor, source.initialBalanceMinor), now)
+        dao.softDelete(sourceAccountId, now)
+    }
+    private fun reassigned(value: FinanceTransactionEntity, source: String, target: String): FinanceTransactionEntity {
+        require(value.accountId == source || value.destinationAccountId == source)
+        val account = if (value.accountId == source) target else value.accountId
+        val destination = if (value.destinationAccountId == source) target else value.destinationAccountId
+        require(value.type != TransactionType.TRANSFER || destination != null && account != destination)
+        return value.copy(accountId = account, destinationAccountId = destination, updatedAt = System.currentTimeMillis())
+    }
 }
 
 class LocalCategoryRepository @Inject constructor(private val db: BudgetPlusDatabase, private val dao: CategoryDao) : CategoryRepository {

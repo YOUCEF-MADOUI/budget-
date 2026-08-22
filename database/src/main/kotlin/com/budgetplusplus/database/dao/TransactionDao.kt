@@ -27,6 +27,8 @@ interface TransactionDao {
       WHERE t.deleted_at IS NULL ORDER BY t.occurred_at DESC LIMIT 500""")
     fun observeAll(): Flow<List<TransactionDetails>>
     @Query("SELECT * FROM finance_transactions WHERE id = :id AND deleted_at IS NULL") suspend fun getEntity(id: String): FinanceTransactionEntity?
+    @Query("SELECT * FROM finance_transactions WHERE id IN (:ids) AND deleted_at IS NULL") suspend fun getEntities(ids: Set<String>): List<FinanceTransactionEntity>
+    @Query("SELECT * FROM finance_transactions WHERE deleted_at IS NULL AND (account_id = :accountId OR destination_account_id = :accountId)") suspend fun getRelated(accountId: String): List<FinanceTransactionEntity>
     @Query("""SELECT t.id, t.type, t.amount_minor AS amountMinor, t.currency_code AS currencyCode,
       t.account_id AS accountId, a.name AS accountName, t.destination_account_id AS destinationAccountId,
       da.name AS destinationAccountName, t.category_id AS categoryId, c.name_key AS categoryNameKey,

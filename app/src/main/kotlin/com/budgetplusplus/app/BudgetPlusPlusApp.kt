@@ -87,10 +87,11 @@ fun BudgetPlusPlusApp() {
                 )
             }
             composable(AppDestination.Accounts.route) { AccountsScreen(onBack = null, onAccountClick = { id -> navController.navigate("accounts/$id") }) }
-            composable(AppDestination.AccountDetail.route) { entry -> AccountDetailScreen(entry.arguments?.getString("accountId").orEmpty(), navController::navigateUp, { id -> navController.navigate("transactions/edit/$id") }) }
+            composable(AppDestination.AccountDetail.route) { entry -> AccountDetailScreen(entry.arguments?.getString("accountId").orEmpty(), navController::navigateUp, { id -> navController.navigate("transactions/edit/$id") }, { type, account -> navController.navigate("transactions/new/${type.name}/$account") }) }
             composable(AppDestination.Categories.route) { CategoriesScreen(onBack = null) }
             composable(AppDestination.Transactions.route) { TransactionsScreen(onBack = null, onAdvancedSearch = { navController.navigate(AppDestination.Search.route) }, onCreate = { navController.navigate(AppDestination.TransactionNew.route) }, onEdit = { id -> navController.navigate("transactions/edit/$id") }) }
             composable(AppDestination.TransactionNew.route) { TransactionEditorScreen(null, navController::navigateUp) }
+            composable(AppDestination.TransactionQuick.route) { entry -> TransactionEditorScreen(null, navController::navigateUp, initialType = entry.arguments?.getString("type")?.let { com.budgetplusplus.core.model.TransactionType.valueOf(it) }, initialAccountId = entry.arguments?.getString("accountId")) }
             composable(AppDestination.TransactionEdit.route) { entry -> TransactionEditorScreen(entry.arguments?.getString("transactionId"), navController::navigateUp) }
             composable(AppDestination.Budgets.route) { BudgetsScreen(onBack = navController::navigateUp) }
             composable(AppDestination.Recurring.route) { RecurringScreen(onBack = navController::navigateUp) }
