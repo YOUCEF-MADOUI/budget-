@@ -17,6 +17,7 @@ import com.budgetplusplus.database.entity.FinanceTransactionEntity
 import com.budgetplusplus.domain.repository.AccountRepository
 import com.budgetplusplus.domain.repository.CategoryRepository
 import com.budgetplusplus.domain.repository.TransactionRepository
+import com.budgetplusplus.domain.validation.FinanceValidator
 import java.time.Instant
 import java.time.ZoneId
 import java.util.UUID
@@ -27,7 +28,7 @@ import kotlinx.coroutines.flow.map
 class LocalAccountRepository @Inject constructor(private val dao: AccountDao) : AccountRepository {
     override fun observeAccounts(): Flow<List<Account>> = dao.observeAll().map { rows -> rows.map { Account(it.id, it.name, AccountType.valueOf(it.type), it.currencyCode, it.initialBalanceMinor, it.currentBalanceMinor, it.isArchived) } }
     override suspend fun create(name: String, type: AccountType, initialBalanceMinor: Long, currencyCode: String) {
-        require(name.isNotBlank())
+        require(FinanceValidator.isValidName(name))
         val now = System.currentTimeMillis()
         dao.insert(AccountEntity(UUID.randomUUID().toString(), BudgetPlusDatabase.DEFAULT_WORKSPACE_ID, name.trim(), type, currencyCode, initialBalanceMinor, createdAt = now, updatedAt = now))
     }
@@ -37,7 +38,7 @@ class LocalAccountRepository @Inject constructor(private val dao: AccountDao) : 
 class LocalCategoryRepository @Inject constructor(private val dao: CategoryDao) : CategoryRepository {
     override fun observeCategories(kind: CategoryKind?): Flow<List<Category>> = dao.observeAll(kind).map { rows -> rows.map { Category(it.id, it.kind, it.nameKey, it.customName, it.isSystem, it.isArchived) } }
     override suspend fun create(name: String, kind: CategoryKind) {
-        require(name.isNotBlank())
+        require(FinanceValidator.isValidName(name))
         val now = System.currentTimeMillis()
         dao.insert(CategoryEntity(UUID.randomUUID().toString(), BudgetPlusDatabase.DEFAULT_WORKSPACE_ID, kind, customName = name.trim(), createdAt = now, updatedAt = now))
     }
@@ -55,12 +56,10 @@ class LocalTransactionRepository @Inject constructor(
     } }
 
     override suspend fun create(type: TransactionType, amountMinor: Long, accountId: String, destinationAccountId: String?, categoryId: String?, description: String, currencyCode: String) = db.withTransaction {
-        require(amountMinor > 0) { "amount" }
-        require(accounts.exists(accountId)) { "account" }
-        when (type) {
-            TransactionType.TRANSFER -> { require(destinationAccountId != null && destinationAccountId != accountId && accounts.exists(destinationAccountId)); require(categoryId == null) }
-            TransactionType.EXPENSE, TransactionType.INCOME -> { require(destinationAccountId == null); require(categoryId != null && categories.kind(categoryId) == CategoryKind.valueOf(type.name)) }
-        }
+        val categoryKind = categoryId?.let { categories.kind(it) }
+        require(FinanceValidator.validateTransaction(type, amountMinor, accountId, destinationAccountId, categoryId, categoryKind, description))
+        require(accounts.exists(accountId))
+        if (destinationAccountId != null) require(accounts.exists(destinationAccountId))
         val now = System.currentTimeMillis()
         val zone = ZoneId.systemDefault()
         transactions.insert(FinanceTransactionEntity(UUID.randomUUID().toString(), BudgetPlusDatabase.DEFAULT_WORKSPACE_ID, type, amountMinor, currencyCode, accountId, destinationAccountId, categoryId, now, Instant.ofEpochMilli(now).atZone(zone).toLocalDate().toString(), zone.id, description.trim(), createdAt = now, updatedAt = now))

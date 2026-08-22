@@ -1,9 +1,10 @@
 <resources>
-    <string name="technical_home_title">الأساس جاهز</string>
-    <string name="technical_home_message">تعمل الملاحة باستخدام Compose. ستُبنى لوحة المعلومات الفعلية في المرحلة الثامنة.</string>
-    <string name="technical_back">رجوع</string>
-    <string name="technical_open_design_system">فتح نظام التصميم</string>
-    <string name="home_accounts">الحسابات</string>
-    <string name="home_categories">الفئات</string>
-    <string name="home_transactions">العمليات</string>
+  <string name="technical_home_title">مرحبًا بك في باجت++</string>
+  <string name="technical_home_message">أدر حساباتك وسجّل المصروفات والدخل والتحويلات دون اتصال.</string>
+  <string name="technical_back">رجوع</string>
+  <string name="technical_open_design_system">دليل المكونات</string>
+  <string name="home_accounts">الحسابات</string>
+  <string name="home_categories">الفئات</string>
+  <string name="home_transactions">العمليات</string>
+  <string name="home_add_transaction">إضافة عملية</string>
 </resources>

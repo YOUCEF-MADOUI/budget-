@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">باجت++</string>
+    <string name="nav_home">الرئيسية</string>
+    <string name="nav_accounts">الحسابات</string>
+    <string name="nav_transactions">العمليات</string>
+    <string name="nav_categories">الفئات</string>
 </resources>
