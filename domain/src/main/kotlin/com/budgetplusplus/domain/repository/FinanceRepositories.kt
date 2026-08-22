@@ -3,6 +3,8 @@ package com.budgetplusplus.domain.repository
 import com.budgetplusplus.core.model.Account
 import com.budgetplusplus.core.model.AnalyticsData
 import com.budgetplusplus.core.model.AccountType
+import com.budgetplusplus.core.model.BackupPreview
+import com.budgetplusplus.core.model.CsvDataset
 import com.budgetplusplus.core.model.BudgetInput
 import com.budgetplusplus.core.model.BudgetProgress
 import com.budgetplusplus.core.model.Category
@@ -35,6 +37,13 @@ interface CategoryRepository {
     suspend fun setArchived(id: String, archived: Boolean, replacementId: String? = null)
     suspend fun setSubcategoryArchived(id: String, archived: Boolean, replacementId: String? = null)
     suspend fun delete(id: String, replacementId: String? = null)
+}
+
+interface BackupRepository {
+    suspend fun createBackup(destinationUri:String,password:CharArray)
+    suspend fun previewBackup(sourceUri:String,password:CharArray):BackupPreview
+    suspend fun restoreBackup(sourceUri:String,password:CharArray)
+    suspend fun exportCsv(destinationUri:String,dataset:CsvDataset)
 }
 
 interface AnalyticsRepository {

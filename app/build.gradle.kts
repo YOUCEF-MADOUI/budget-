@@ -15,6 +15,7 @@ dependencies {
     implementation(project(":feature:recurring"))
     implementation(project(":feature:analytics"))
     implementation(project(":feature:search"))
+    implementation(project(":feature:backup"))
     implementation(project(":data"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)

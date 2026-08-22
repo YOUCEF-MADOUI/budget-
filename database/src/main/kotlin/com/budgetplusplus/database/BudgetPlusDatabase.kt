@@ -36,6 +36,7 @@ abstract class BudgetPlusDatabase : RoomDatabase() {
 
     companion object {
         const val NAME = "budget_plus_plus.db"
+        const val SCHEMA_VERSION = 6
         const val DEFAULT_WORKSPACE_ID = "00000000-0000-0000-0000-000000000001"
     }
 }

@@ -17,8 +17,9 @@ Budget++ est une application Android native de gestion budgétaire personnelle, 
 - **Phase 11 — Opérations récurrentes :** règles quotidiennes à annuelles, WorkManager, rattrapage et idempotence.
 - **Phase 12 — Analyse :** évolutions, comparaisons, moyennes et catégories principales via Room.
 - **Phase 13 — Recherche :** filtres combinés, FTS Unicode et pagination keyset conçue pour 100 000 opérations.
+- **Phase 14 — Sauvegarde/export :** archives AES-GCM versionnées, restauration atomique et exports CSV UTF-8 via SAF.
 
-Documentation : [Design System Budget++](docs/PHASE_3_DESIGN_SYSTEM.md) · [Base Room et premières fonctionnalités](docs/PHASE_4_FIRST_FEATURES.md) · [Domaine et boucle financière utilisable](docs/PHASE_5_USABLE_FINANCE_LOOP.md) · [Tableau de bord financier](docs/PHASE_8_DASHBOARD.md) · [Catégories avancées](docs/PHASE_9_CATEGORIES.md) · [Gestion des budgets](docs/PHASE_10_BUDGETS.md) · [Opérations récurrentes](docs/PHASE_11_RECURRING.md) · [Statistiques et analyses](docs/PHASE_12_ANALYTICS.md) · [Recherche et filtres avancés](docs/PHASE_13_SEARCH.md).
+Documentation : [Design System Budget++](docs/PHASE_3_DESIGN_SYSTEM.md) · [Base Room et premières fonctionnalités](docs/PHASE_4_FIRST_FEATURES.md) · [Domaine et boucle financière utilisable](docs/PHASE_5_USABLE_FINANCE_LOOP.md) · [Tableau de bord financier](docs/PHASE_8_DASHBOARD.md) · [Catégories avancées](docs/PHASE_9_CATEGORIES.md) · [Gestion des budgets](docs/PHASE_10_BUDGETS.md) · [Opérations récurrentes](docs/PHASE_11_RECURRING.md) · [Statistiques et analyses](docs/PHASE_12_ANALYTICS.md) · [Recherche et filtres avancés](docs/PHASE_13_SEARCH.md) · [Sauvegarde, restauration et export](docs/PHASE_14_BACKUP_EXPORT.md).
 
 ## Configuration Android
 

@@ -22,8 +22,13 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
     @Provides @Singleton
-    fun database(@ApplicationContext context: Context): BudgetPlusDatabase =
-        Room.databaseBuilder(context, BudgetPlusDatabase::class.java, BudgetPlusDatabase.NAME)
+    fun database(@ApplicationContext context: Context): BudgetPlusDatabase {
+        val target = context.getDatabasePath(BudgetPlusDatabase.NAME)
+        val rollback = java.io.File(target.parentFile, "${target.name}.restore-rollback")
+        val staged = java.io.File(target.parentFile, "${target.name}.restore-staged")
+        if (!target.exists() && rollback.exists()) rollback.renameTo(target)
+        staged.delete()
+        return Room.databaseBuilder(context, BudgetPlusDatabase::class.java, BudgetPlusDatabase.NAME)
             .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
             .addCallback(object : RoomDatabase.Callback() {
                 override fun onCreate(db: SupportSQLiteDatabase) {
@@ -46,6 +51,7 @@ object DatabaseModule {
                     }
                 }
             }).build()
+    }
 
     @Provides fun accounts(db: BudgetPlusDatabase) = db.accountDao()
     @Provides fun categories(db: BudgetPlusDatabase) = db.categoryDao()
