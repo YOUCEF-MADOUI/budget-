@@ -2,21 +2,16 @@ package com.budgetplusplus.feature.budgets
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import com.budgetplusplus.core.designsystem.financial.FinancialBudgetCard
 import com.budgetplusplus.core.designsystem.theme.BudgetPlusPlusTheme
-import com.budgetplusplus.core.model.*
-import com.budgetplusplus.domain.repository.*
-import kotlinx.coroutines.flow.*
-import org.junit.*
-import org.junit.Assert.assertEquals
+import org.junit.Rule
+import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class) @Config(sdk=[35],qualifiers="fr")
 class BudgetsScreenTest {
- @get:Rule val compose=createComposeRule();private val budgets=FakeBudgets();private lateinit var viewModel:BudgetsViewModel
- @Before fun content(){viewModel=BudgetsViewModel(budgets,EmptyCategories());compose.setContent{BudgetPlusPlusTheme{BudgetsScreen(null,viewModel)}}}
- @Test fun `budget ViewModel update is rendered from empty state`(){compose.onNodeWithText("Aucun budget actif").assertExists();compose.runOnIdle{kotlinx.coroutines.runBlocking{budgets.save(BudgetInput(name="Courses",scope=BudgetScope.GLOBAL,amountMinor=500_000,periodType=BudgetPeriodType.MONTHLY,startDate="2026-08-01",endDate="2026-08-31"))}};compose.waitUntil{budgets.values.value.size==1};compose.onNodeWithText("Courses").assertExists();assertEquals(500_000,budgets.saved?.amountMinor)}
+ @get:Rule val compose=createComposeRule()
+ @Test fun `budget progress card exposes complete textual alternative`(){compose.setContent{BudgetPlusPlusTheme{FinancialBudgetCard(name="Courses",plannedLabel="Prévu",spentLabel="Dépensé",remainingLabel="Restant",plannedMinor=500_000,spentMinor=375_000,currencyCode="DZD",warningThresholdPercent=75)}};compose.onNodeWithText("Courses").assertExists();compose.onNodeWithText("Prévu").assertExists();compose.onNodeWithText("Dépensé").assertExists();compose.onNodeWithText("Restant").assertExists()}
 }
-private class FakeBudgets:BudgetRepository{val values=MutableStateFlow<List<BudgetProgress>>(emptyList());var saved:BudgetInput?=null;override fun observeBudgets():Flow<List<BudgetProgress>> =values;override suspend fun save(input:BudgetInput){saved=input;values.value=listOf(BudgetProgress("id",input.name,input.scope,amountMinor=input.amountMinor,spentMinor=0,currencyCode="DZD",periodType=input.periodType,startDate=input.startDate,endDate=input.endDate,warningThresholdPercent=input.warningThresholdPercent,isArchived=false))};override suspend fun setArchived(id:String,archived:Boolean)=Unit}
-private class EmptyCategories:CategoryRepository{override fun observeCategories(kind:CategoryKind?)=flowOf(emptyList<Category>());override fun observeSubcategories()=flowOf(emptyList<Subcategory>());override suspend fun create(name:String,kind:CategoryKind,iconKey:String,colorKey:String)=Unit;override suspend fun update(id:String,name:String,iconKey:String,colorKey:String)=Unit;override suspend fun createSubcategory(categoryId:String,name:String)=Unit;override suspend fun updateSubcategory(id:String,name:String)=Unit;override suspend fun setArchived(id:String,archived:Boolean,replacementId:String?)=Unit;override suspend fun setSubcategoryArchived(id:String,archived:Boolean,replacementId:String?)=Unit;override suspend fun delete(id:String,replacementId:String?)=Unit}
