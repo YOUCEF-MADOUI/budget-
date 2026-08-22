@@ -40,4 +40,5 @@ include(
     ":feature:backup",
     ":feature:settings",
     ":feature:security",
+    ":feature:futurepayments",
 )

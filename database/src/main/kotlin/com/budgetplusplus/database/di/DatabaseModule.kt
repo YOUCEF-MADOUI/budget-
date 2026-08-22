@@ -13,6 +13,7 @@ import com.budgetplusplus.database.MIGRATION_5_6
 import com.budgetplusplus.database.MIGRATION_6_7
 import com.budgetplusplus.database.MIGRATION_7_8
 import com.budgetplusplus.database.MIGRATION_8_9
+import com.budgetplusplus.database.MIGRATION_9_10
 import com.budgetplusplus.database.createAccountHierarchyInfrastructure
 import com.budgetplusplus.database.createSearchInfrastructure
 import dagger.Module
@@ -33,7 +34,7 @@ object DatabaseModule {
         if (!target.exists() && rollback.exists()) rollback.renameTo(target)
         staged.delete()
         return Room.databaseBuilder(context, BudgetPlusDatabase::class.java, BudgetPlusDatabase.NAME)
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10)
             .addCallback(object : RoomDatabase.Callback() {
                 override fun onOpen(db: SupportSQLiteDatabase) {
                     super.onOpen(db)
@@ -71,4 +72,5 @@ object DatabaseModule {
     @Provides fun recurring(db: BudgetPlusDatabase) = db.recurringDao()
     @Provides fun analytics(db: BudgetPlusDatabase) = db.analyticsDao()
     @Provides fun search(db: BudgetPlusDatabase) = db.searchDao()
+    @Provides fun futurePayments(db: BudgetPlusDatabase) = db.futurePaymentDao()
 }

@@ -4,6 +4,10 @@ import com.budgetplusplus.core.model.Account
 import com.budgetplusplus.core.model.AnalyticsData
 import com.budgetplusplus.core.model.AccountType
 import com.budgetplusplus.core.model.BackupPreview
+import com.budgetplusplus.core.model.FuturePayment
+import com.budgetplusplus.core.model.FuturePaymentInput
+import com.budgetplusplus.core.model.DuePayment
+import com.budgetplusplus.core.model.DueReminder
 import com.budgetplusplus.core.model.CsvDataset
 import com.budgetplusplus.core.model.AppSecuritySettings
 import com.budgetplusplus.core.model.PinVerificationResult
@@ -45,6 +49,16 @@ interface CategoryRepository {
     suspend fun setArchived(id: String, archived: Boolean, replacementId: String? = null)
     suspend fun setSubcategoryArchived(id: String, archived: Boolean, replacementId: String? = null)
     suspend fun delete(id: String, replacementId: String? = null)
+}
+
+interface FuturePaymentRepository {
+    fun observeFuturePayments():Flow<List<FuturePayment>>
+    fun observePayments(dueId:String):Flow<List<DuePayment>>
+    suspend fun save(input:FuturePaymentInput)
+    suspend fun setCancelled(id:String,cancelled:Boolean)
+    suspend fun pay(dueId:String,requestId:String,accountId:String,amountMinor:Long,paidDate:String):String
+    suspend fun cancelPayment(paymentId:String)
+    suspend fun claimReminders(today:String):List<DueReminder>
 }
 
 interface SecurityRepository {

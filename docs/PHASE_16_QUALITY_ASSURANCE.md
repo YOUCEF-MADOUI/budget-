@@ -12,7 +12,7 @@ Les suites vérifient les invariants dépense/revenu/transfert, limites `Long`, 
 
 `DaoIntegrationTest` ouvre la vraie base Room et contrôle : soldes après dépense/revenu/transfert, agrégats excluant les transferts et suivi réactif d'un budget de catégorie.
 
-`FullMigrationTest` crée un schéma version 1 peuplé, applique successivement `MIGRATION_1_2` à `MIGRATION_8_9`, puis laisse Room valider le schéma 9 complet. Il vérifie notamment sous-catégories, budgets, récurrences et FTS. Les convertisseurs et déclarations de versions restent testés séparément.
+`FullMigrationTest` crée un schéma version 1 peuplé, applique successivement `MIGRATION_1_2` à `MIGRATION_9_10`, puis laisse Room valider le schéma 10 complet. Il vérifie notamment sous-catégories, budgets, récurrences et FTS. Les convertisseurs et déclarations de versions restent testés séparément.
 
 ## Intégration repositories
 

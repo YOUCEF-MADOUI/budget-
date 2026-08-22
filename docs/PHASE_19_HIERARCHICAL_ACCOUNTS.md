@@ -32,7 +32,7 @@ La suppression reste logique. Un compte avec opérations ou descendants exige un
 
 ## Sauvegarde et export
 
-La sauvegarde chiffrée copie toute la base et conserve donc la hiérarchie. Les sauvegardes de schémas antérieurs migrent vers 9. L'export CSV des comptes inclut `parent_account_id`.
+La sauvegarde chiffrée copie toute la base et conserve donc la hiérarchie. Les sauvegardes de schémas antérieurs migrent vers 10. L'export CSV des comptes inclut `parent_account_id`.
 
 ## Tests
 
@@ -42,5 +42,5 @@ La sauvegarde chiffrée copie toute la base et conserve donc la hiérarchie. Les
 - solde consolidé avec transfert interne net nul ;
 - déplacement des descendants et report du solde initial ;
 - protection des auto-transferts et récurrences ;
-- migration intégrale 1→9 ;
+- migration intégrale 1→10 ;
 - CI complète avec Lint, analyse statique, UI Compose et charges 10k/50k/100k.

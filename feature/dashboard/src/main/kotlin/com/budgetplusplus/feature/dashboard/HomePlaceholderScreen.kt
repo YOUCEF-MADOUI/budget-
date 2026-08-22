@@ -44,6 +44,7 @@ fun HomePlaceholderScreen(
     onRecurringClick: () -> Unit,
     onBackupClick: () -> Unit,
     onSecurityClick: () -> Unit,
+    onFuturePaymentsClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DashboardViewModel = hiltViewModel(),
 ) {
@@ -58,6 +59,7 @@ fun HomePlaceholderScreen(
             DropdownMenuItem({ Text(stringResource(R.string.home_recurring)) }, { showMenu = false; onRecurringClick() })
             DropdownMenuItem({ Text(stringResource(R.string.home_backup)) }, { showMenu = false; onBackupClick() })
             DropdownMenuItem({ Text(stringResource(R.string.home_security)) }, { showMenu = false; onSecurityClick() })
+            DropdownMenuItem({ Text(stringResource(R.string.home_future_payments)) }, { showMenu = false; onFuturePaymentsClick() })
             DropdownMenuItem({ Text(stringResource(R.string.technical_open_design_system)) }, { showMenu = false; onDesignSystemClick() })
         } } },
         modifier = modifier,
@@ -73,6 +75,7 @@ fun HomePlaceholderScreen(
                 onAccountsClick = onAccountsClick,
                 onTransactionsClick = onTransactionsClick,
                 onBudgetsClick = onBudgetsClick,
+                onFuturePaymentsClick = onFuturePaymentsClick,
                 modifier = Modifier.padding(padding),
             )
         }
@@ -92,6 +95,7 @@ private fun DashboardContent(
     onAccountsClick: () -> Unit,
     onTransactionsClick: () -> Unit,
     onBudgetsClick: () -> Unit,
+    onFuturePaymentsClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     if (data.accounts.isEmpty()) {
@@ -110,7 +114,7 @@ private fun DashboardContent(
         item { PeriodFilters(selectedPeriod, onPeriod) }
         item { Text(periodLabel, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant) }
         item { IncomeExpenseCard(periodLabel, stringResource(R.string.dashboard_income), stringResource(R.string.dashboard_expenses), stringResource(R.string.dashboard_net), data.incomeMinor, data.expenseMinor, data.currencyCode, Modifier.fillMaxWidth()) }
-        item { Button(onClick = onBudgetsClick, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.dashboard_open_budgets)) } }
+        item { Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) { Button(onClick = onBudgetsClick, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.dashboard_open_budgets)) }; Button(onClick = onFuturePaymentsClick, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.home_future_payments)) } } }
         item { SectionTitle(stringResource(R.string.dashboard_evolution)) }
         item {
             if (data.evolution.size <= 1) DashboardSectionEmpty(stringResource(R.string.dashboard_no_evolution))
