@@ -2,9 +2,8 @@ package com.budgetplusplus.core.designsystem
 
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
-import androidx.compose.ui.test.assertExists
+import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNode
 import com.budgetplusplus.core.designsystem.financial.MoneyText
 import com.budgetplusplus.core.designsystem.theme.BudgetPlusPlusTheme
 import org.junit.Rule
