@@ -2,6 +2,8 @@ package com.budgetplusplus.domain.repository
 
 import com.budgetplusplus.core.model.Account
 import com.budgetplusplus.core.model.AccountType
+import com.budgetplusplus.core.model.BudgetInput
+import com.budgetplusplus.core.model.BudgetProgress
 import com.budgetplusplus.core.model.Category
 import com.budgetplusplus.core.model.CategoryKind
 import com.budgetplusplus.core.model.DashboardData
@@ -26,6 +28,12 @@ interface CategoryRepository {
     suspend fun setArchived(id: String, archived: Boolean, replacementId: String? = null)
     suspend fun setSubcategoryArchived(id: String, archived: Boolean, replacementId: String? = null)
     suspend fun delete(id: String, replacementId: String? = null)
+}
+
+interface BudgetRepository {
+    fun observeBudgets(): Flow<List<BudgetProgress>>
+    suspend fun save(input: BudgetInput)
+    suspend fun setArchived(id: String, archived: Boolean)
 }
 
 interface DashboardRepository {

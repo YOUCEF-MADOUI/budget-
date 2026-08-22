@@ -17,6 +17,7 @@ import com.budgetplusplus.core.designsystem.demo.DesignSystemDemoScreen
 import com.budgetplusplus.core.designsystem.icons.BudgetIcons
 import com.budgetplusplus.feature.accounts.AccountsScreen
 import com.budgetplusplus.feature.categories.CategoriesScreen
+import com.budgetplusplus.feature.budgets.BudgetsScreen
 import com.budgetplusplus.feature.dashboard.HomePlaceholderScreen
 import com.budgetplusplus.feature.onboarding.TechnicalWelcomeScreen
 import com.budgetplusplus.feature.transactions.TransactionsScreen
@@ -71,11 +72,13 @@ fun BudgetPlusPlusApp() {
                     onAccountsClick = { navController.navigate(AppDestination.Accounts.route) },
                     onCategoriesClick = { navController.navigate(AppDestination.Categories.route) },
                     onTransactionsClick = { navController.navigate(AppDestination.Transactions.route) },
+                    onBudgetsClick = { navController.navigate(AppDestination.Budgets.route) },
                 )
             }
             composable(AppDestination.Accounts.route) { AccountsScreen(onBack = null) }
             composable(AppDestination.Categories.route) { CategoriesScreen(onBack = null) }
             composable(AppDestination.Transactions.route) { TransactionsScreen(onBack = null) }
+            composable(AppDestination.Budgets.route) { BudgetsScreen(onBack = navController::navigateUp) }
             composable(AppDestination.DesignSystem.route) { DesignSystemDemoScreen(onBackClick = navController::navigateUp) }
         }
     }

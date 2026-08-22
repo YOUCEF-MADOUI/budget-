@@ -8,5 +8,7 @@ class RoomConvertersTest {
   assertEquals(AccountType.SAVINGS, converter.accountType(converter.accountType(AccountType.SAVINGS)))
   assertEquals(CategoryKind.EXPENSE, converter.categoryKind(converter.categoryKind(CategoryKind.EXPENSE)))
   assertEquals(TransactionType.TRANSFER, converter.transactionType(converter.transactionType(TransactionType.TRANSFER)))
+  assertEquals(BudgetScope.CATEGORY, converter.budgetScope(converter.budgetScope(BudgetScope.CATEGORY)))
+  assertEquals(BudgetPeriodType.CUSTOM, converter.budgetPeriodType(converter.budgetPeriodType(BudgetPeriodType.CUSTOM)))
  }
 }

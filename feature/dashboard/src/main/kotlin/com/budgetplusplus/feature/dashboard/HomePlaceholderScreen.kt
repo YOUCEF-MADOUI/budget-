@@ -38,6 +38,7 @@ fun HomePlaceholderScreen(
     onAccountsClick: () -> Unit,
     onCategoriesClick: () -> Unit,
     onTransactionsClick: () -> Unit,
+    onBudgetsClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DashboardViewModel = hiltViewModel(),
 ) {
@@ -63,6 +64,7 @@ fun HomePlaceholderScreen(
                 onPeriod = { period -> if (period == DashboardPeriod.CUSTOM) showRangePicker = true else viewModel.selectPeriod(period) },
                 onAccountsClick = onAccountsClick,
                 onTransactionsClick = onTransactionsClick,
+                onBudgetsClick = onBudgetsClick,
                 modifier = Modifier.padding(padding),
             )
         }
@@ -81,6 +83,7 @@ private fun DashboardContent(
     onPeriod: (DashboardPeriod) -> Unit,
     onAccountsClick: () -> Unit,
     onTransactionsClick: () -> Unit,
+    onBudgetsClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     if (data.accounts.isEmpty()) {
@@ -99,6 +102,7 @@ private fun DashboardContent(
         item { PeriodFilters(selectedPeriod, onPeriod) }
         item { Text(periodLabel, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant) }
         item { IncomeExpenseCard(periodLabel, stringResource(R.string.dashboard_income), stringResource(R.string.dashboard_expenses), stringResource(R.string.dashboard_net), data.incomeMinor, data.expenseMinor, data.currencyCode, Modifier.fillMaxWidth()) }
+        item { Button(onClick = onBudgetsClick, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.dashboard_open_budgets)) } }
         item { SectionTitle(stringResource(R.string.dashboard_evolution)) }
         item {
             if (data.evolution.size <= 1) DashboardSectionEmpty(stringResource(R.string.dashboard_no_evolution))

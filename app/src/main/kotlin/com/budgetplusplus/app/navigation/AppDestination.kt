@@ -7,4 +7,5 @@ internal enum class AppDestination(val route: String) {
     Accounts("accounts"),
     Categories("categories"),
     Transactions("transactions"),
+    Budgets("budgets"),
 }

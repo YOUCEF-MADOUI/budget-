@@ -32,3 +32,27 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
         }
     }
 }
+
+val MIGRATION_3_4 = object : Migration(3, 4) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("""CREATE TABLE IF NOT EXISTS budgets (
+            id TEXT NOT NULL PRIMARY KEY, workspace_id TEXT NOT NULL, name TEXT NOT NULL, scope TEXT NOT NULL,
+            category_id TEXT, amount_minor INTEGER NOT NULL, currency_code TEXT NOT NULL, period_type TEXT NOT NULL,
+            start_date TEXT NOT NULL, end_date TEXT NOT NULL, is_archived INTEGER NOT NULL,
+            created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, deleted_at INTEGER,
+            FOREIGN KEY(workspace_id) REFERENCES workspaces(id) ON UPDATE NO ACTION ON DELETE CASCADE,
+            FOREIGN KEY(category_id) REFERENCES categories(id) ON UPDATE NO ACTION ON DELETE RESTRICT)""")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_budgets_workspace_id_is_archived_start_date_deleted_at ON budgets (workspace_id, is_archived, start_date, deleted_at)")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_budgets_category_id ON budgets (category_id)")
+        db.execSQL("""CREATE TABLE IF NOT EXISTS budget_alert_thresholds (
+            budget_id TEXT NOT NULL, percentage INTEGER NOT NULL, enabled INTEGER NOT NULL,
+            PRIMARY KEY(budget_id, percentage),
+            FOREIGN KEY(budget_id) REFERENCES budgets(id) ON UPDATE NO ACTION ON DELETE CASCADE)""")
+        db.execSQL("CREATE INDEX IF NOT EXISTS index_budget_alert_thresholds_budget_id ON budget_alert_thresholds (budget_id)")
+        db.execSQL("""CREATE TABLE IF NOT EXISTS budget_alert_events (
+            id TEXT NOT NULL PRIMARY KEY, budget_id TEXT NOT NULL, period_key TEXT NOT NULL,
+            percentage INTEGER NOT NULL, notified_at INTEGER NOT NULL,
+            FOREIGN KEY(budget_id) REFERENCES budgets(id) ON UPDATE NO ACTION ON DELETE CASCADE)""")
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_budget_alert_events_budget_id_period_key_percentage ON budget_alert_events (budget_id, period_key, percentage)")
+    }
+}
