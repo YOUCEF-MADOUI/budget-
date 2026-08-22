@@ -8,6 +8,7 @@ import com.budgetplusplus.domain.repository.AccountRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.Flow
 import org.junit.*
+import org.junit.Assert.assertEquals
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config

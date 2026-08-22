@@ -7,6 +7,7 @@ import com.budgetplusplus.core.model.*
 import com.budgetplusplus.domain.repository.*
 import kotlinx.coroutines.flow.*
 import org.junit.*
+import org.junit.Assert.assertEquals
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
