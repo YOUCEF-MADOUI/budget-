@@ -41,6 +41,7 @@ fun HomePlaceholderScreen(
     onBudgetsClick: () -> Unit,
     onRecurringClick: () -> Unit,
     onBackupClick: () -> Unit,
+    onSecurityClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: DashboardViewModel = hiltViewModel(),
 ) {
@@ -54,6 +55,7 @@ fun HomePlaceholderScreen(
             DropdownMenuItem({ Text(stringResource(R.string.home_categories)) }, { showMenu = false; onCategoriesClick() })
             DropdownMenuItem({ Text(stringResource(R.string.home_recurring)) }, { showMenu = false; onRecurringClick() })
             DropdownMenuItem({ Text(stringResource(R.string.home_backup)) }, { showMenu = false; onBackupClick() })
+            DropdownMenuItem({ Text(stringResource(R.string.home_security)) }, { showMenu = false; onSecurityClick() })
             DropdownMenuItem({ Text(stringResource(R.string.technical_open_design_system)) }, { showMenu = false; onDesignSystemClick() })
         } } },
         modifier = modifier,

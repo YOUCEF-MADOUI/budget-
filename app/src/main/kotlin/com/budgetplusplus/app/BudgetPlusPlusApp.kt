@@ -22,6 +22,7 @@ import com.budgetplusplus.feature.recurring.RecurringScreen
 import com.budgetplusplus.feature.analytics.AnalyticsScreen
 import com.budgetplusplus.feature.search.SearchScreen
 import com.budgetplusplus.feature.backup.BackupScreen
+import com.budgetplusplus.feature.security.SecuritySettingsScreen
 import com.budgetplusplus.feature.dashboard.HomePlaceholderScreen
 import com.budgetplusplus.feature.onboarding.TechnicalWelcomeScreen
 import com.budgetplusplus.feature.transactions.TransactionsScreen
@@ -80,6 +81,7 @@ fun BudgetPlusPlusApp() {
                     onBudgetsClick = { navController.navigate(AppDestination.Budgets.route) },
                     onRecurringClick = { navController.navigate(AppDestination.Recurring.route) },
                     onBackupClick = { navController.navigate(AppDestination.Backup.route) },
+                    onSecurityClick = { navController.navigate(AppDestination.Security.route) },
                 )
             }
             composable(AppDestination.Accounts.route) { AccountsScreen(onBack = null) }
@@ -90,6 +92,7 @@ fun BudgetPlusPlusApp() {
             composable(AppDestination.Analytics.route) { AnalyticsScreen(onBack = null) }
             composable(AppDestination.Search.route) { SearchScreen(onBack = navController::navigateUp) }
             composable(AppDestination.Backup.route) { BackupScreen(onBack = navController::navigateUp) }
+            composable(AppDestination.Security.route) { SecuritySettingsScreen(onBack = navController::navigateUp) }
             composable(AppDestination.DesignSystem.route) { DesignSystemDemoScreen(onBackClick = navController::navigateUp) }
         }
     }

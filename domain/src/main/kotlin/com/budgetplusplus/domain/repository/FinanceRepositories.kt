@@ -5,6 +5,8 @@ import com.budgetplusplus.core.model.AnalyticsData
 import com.budgetplusplus.core.model.AccountType
 import com.budgetplusplus.core.model.BackupPreview
 import com.budgetplusplus.core.model.CsvDataset
+import com.budgetplusplus.core.model.AppSecuritySettings
+import com.budgetplusplus.core.model.PinVerificationResult
 import com.budgetplusplus.core.model.BudgetInput
 import com.budgetplusplus.core.model.BudgetProgress
 import com.budgetplusplus.core.model.Category
@@ -37,6 +39,18 @@ interface CategoryRepository {
     suspend fun setArchived(id: String, archived: Boolean, replacementId: String? = null)
     suspend fun setSubcategoryArchived(id: String, archived: Boolean, replacementId: String? = null)
     suspend fun delete(id: String, replacementId: String? = null)
+}
+
+interface SecurityRepository {
+    fun observeSettings():Flow<AppSecuritySettings>
+    suspend fun setPin(pin:CharArray)
+    suspend fun verifyPin(pin:CharArray,nowEpochMillis:Long=System.currentTimeMillis()):PinVerificationResult
+    suspend fun setBiometricEnabled(enabled:Boolean)
+    suspend fun recordBiometricSuccess()
+    suspend fun setLockDelay(seconds:Long)
+    suspend fun setProtectScreen(enabled:Boolean)
+    suspend fun disablePin()
+    suspend fun eraseAllDataAfterForgottenPin()
 }
 
 interface BackupRepository {

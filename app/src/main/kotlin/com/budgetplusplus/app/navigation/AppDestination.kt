@@ -12,4 +12,5 @@ internal enum class AppDestination(val route: String) {
     Analytics("analytics"),
     Search("search"),
     Backup("backup"),
+    Security("security"),
 }
