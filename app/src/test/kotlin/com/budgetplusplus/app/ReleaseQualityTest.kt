@@ -12,8 +12,9 @@ import org.junit.Test
 
 class ReleaseQualityTest {
     private val root: File by lazy {
-        generateSequence(File(System.getProperty("user.dir")).absoluteFile) { it.parentFile }
-            .first { File(it, "settings.gradle.kts").exists() }
+        generateSequence(File(requireNotNull(System.getProperty("user.dir"))).absoluteFile) {
+            it.parentFile
+        }.first { File(it, "settings.gradle.kts").exists() }
     }
 
     @Test
@@ -70,7 +71,7 @@ class ReleaseQualityTest {
             .toList()
         assertTrue(modules.isNotEmpty())
         modules.forEach { base ->
-            val res = base.parentFile.parentFile
+            val res = requireNotNull(base.parentFile?.parentFile)
             val expected = names(base)
             listOf("values-fr", "values-en", "values-ar").forEach { folder ->
                 val translated = File(res, "$folder/strings.xml")
@@ -89,7 +90,7 @@ class ReleaseQualityTest {
         val manifest = File(root, "app/src/main/AndroidManifest.xml").readText()
         assertTrue(manifest.contains("android:supportsRtl=\"true\""))
         val productionSources = sequenceOf("app", "data", "database")
-            .flatMap { File(root, it).walkTopDown() }
+            .flatMap { File(root, "$it/src/main").walkTopDown() }
             .filter { it.isFile && it.extension in setOf("kt", "java") }
             .joinToString("\n") { it.readText() }
         assertFalse(productionSources.contains("fallbackToDestructiveMigration"))
