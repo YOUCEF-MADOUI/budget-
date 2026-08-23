@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Budget++</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_accounts">Accounts</string>
+    <string name="nav_transactions">Transactions</string>
+    <string name="nav_categories">Categories</string>
+    <string name="nav_analytics">Analytics</string>
+</resources>

@@ -1,0 +1,5 @@
+<resources>
+    <string name="transaction_editor_account_back">Compte parent</string>
+    <string name="transaction_editor_use_account">Utiliser %1$s</string>
+    <string name="transaction_editor_open_account">%1$s  ›</string>
+</resources>

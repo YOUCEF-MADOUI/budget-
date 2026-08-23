@@ -1,0 +1,125 @@
+package com.budgetplusplus.app
+
+import java.io.DataInputStream
+import java.io.File
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import javax.xml.parsers.DocumentBuilderFactory
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class ReleaseQualityTest {
+    private val root: File by lazy {
+        generateSequence(File(requireNotNull(System.getProperty("user.dir"))).absoluteFile) {
+            it.parentFile
+        }.first { File(it, "settings.gradle.kts").exists() }
+    }
+
+    @Test
+    fun `debug APK stays below size budget`() {
+        val apk = File(root, "app/build/outputs/apk/debug/app-debug.apk")
+        assertTrue("assembleDebug must run before quality tests", apk.exists())
+        assertTrue("Debug APK exceeds 50 MiB: ${apk.length()}", apk.length() < 50L * 1024 * 1024)
+    }
+
+    @Test
+    fun `release identity is version one`() {
+        val configuration = File(
+            root,
+            "build-logic/src/main/kotlin/com/budgetplusplus/buildlogic/AndroidConfiguration.kt",
+        ).readText()
+        assertTrue(configuration.contains("versionCode = 10_000"))
+        assertTrue(configuration.contains("versionName = \"1.0.0\""))
+    }
+
+    @Test
+    fun `official launcher icon is complete on every supported API`() {
+        val manifest = File(root, "app/src/main/AndroidManifest.xml").readText()
+        assertTrue(manifest.contains("android:icon=\"@mipmap/ic_launcher\""))
+        assertTrue(manifest.contains("android:roundIcon=\"@mipmap/ic_launcher_round\""))
+
+        val expectedSizes = mapOf(
+            "mdpi" to 48,
+            "hdpi" to 72,
+            "xhdpi" to 96,
+            "xxhdpi" to 144,
+            "xxxhdpi" to 192,
+        )
+        expectedSizes.forEach { (density, expectedSize) ->
+            listOf("ic_launcher.png", "ic_launcher_round.png").forEach { name ->
+                val file = File(root, "app/src/main/res/mipmap-$density/$name")
+                assertTrue("Missing ${file.relativeTo(root)}", file.exists())
+                val (width, height) = pngSize(file)
+                assertEquals(expectedSize, width)
+                assertEquals(expectedSize, height)
+            }
+        }
+
+        val adaptive = File(root, "app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml").readText()
+        assertTrue(adaptive.contains("@drawable/ic_launcher_foreground"))
+        assertTrue(adaptive.contains("@color/ic_launcher_background"))
+        val themed = File(root, "app/src/main/res/mipmap-anydpi-v33/ic_launcher.xml").readText()
+        assertTrue(themed.contains("@drawable/ic_launcher_monochrome"))
+
+        val appSource = File(
+            root,
+            "app/src/main/kotlin/com/budgetplusplus/app/BudgetPlusPlusApp.kt",
+        ).readText()
+        assertTrue(appSource.contains("brandIconRes = R.drawable.ic_launcher_foreground"))
+        assertFalse(appSource.contains("brandIconRes = R.mipmap.ic_launcher"))
+    }
+
+    @Test
+    fun `all localized modules keep French English Arabic parity`() {
+        val modules = root.walkTopDown()
+            .filter {
+                it.isFile &&
+                    it.invariantSeparatorsPath.endsWith("src/main/res/values/strings.xml")
+            }
+            .toList()
+        assertTrue(modules.isNotEmpty())
+        modules.forEach { base ->
+            val res = requireNotNull(base.parentFile?.parentFile)
+            val expected = names(base)
+            listOf("values-fr", "values-en", "values-ar").forEach { folder ->
+                val translated = File(res, "$folder/strings.xml")
+                assertTrue("Missing $folder for ${base.relativeTo(root)}", translated.exists())
+                assertEquals(
+                    "Resource mismatch in ${translated.relativeTo(root)}",
+                    expected,
+                    names(translated),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `application supports RTL and never enables destructive Room fallback`() {
+        val manifest = File(root, "app/src/main/AndroidManifest.xml").readText()
+        assertTrue(manifest.contains("android:supportsRtl=\"true\""))
+        val productionSources = sequenceOf("app", "data", "database")
+            .flatMap { File(root, "$it/src/main").walkTopDown() }
+            .filter { it.isFile && it.extension in setOf("kt", "java") }
+            .joinToString("\n") { it.readText() }
+        assertFalse(productionSources.contains("fallbackToDestructiveMigration"))
+    }
+
+    private fun pngSize(file: File): Pair<Int, Int> {
+        val header = ByteArray(24)
+        DataInputStream(file.inputStream()).use { it.readFully(header) }
+        val pngSignature = byteArrayOf(-119, 80, 78, 71, 13, 10, 26, 10)
+        assertTrue("Invalid PNG: ${file.relativeTo(root)}", header.take(8) == pngSignature.toList())
+        val dimensions = ByteBuffer.wrap(header, 16, 8).order(ByteOrder.BIG_ENDIAN)
+        return dimensions.int to dimensions.int
+    }
+
+    private fun names(file: File): Set<String> {
+        val document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file)
+        val nodes = document.getElementsByTagName("string")
+        return (0 until nodes.length)
+            .map { nodes.item(it).attributes.getNamedItem("name").nodeValue }
+            .toSet()
+    }
+}

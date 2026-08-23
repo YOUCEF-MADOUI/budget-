@@ -1,0 +1,25 @@
+package com.budgetplusplus.feature.transactions
+
+import androidx.compose.ui.test.*
+import androidx.compose.ui.test.junit4.createComposeRule
+import com.budgetplusplus.core.designsystem.theme.BudgetPlusPlusTheme
+import com.budgetplusplus.core.model.*
+import com.budgetplusplus.domain.repository.*
+import kotlinx.coroutines.flow.*
+import org.junit.*
+import org.junit.Assert.assertEquals
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+
+@RunWith(RobolectricTestRunner::class) @Config(sdk=[35],qualifiers="fr")
+class TransactionsScreenTest {
+ @get:Rule val compose=createComposeRule();private val transactions=FakeTransactions();private val accounts=FakeTransactionAccounts();private val categories=FakeTransactionCategories();private lateinit var viewModel:TransactionsViewModel
+ @Before fun content(){viewModel=TransactionsViewModel(accounts,categories,transactions,FakeTransactionMedia());compose.setContent{BudgetPlusPlusTheme{TransactionsScreen(null,{},{},{},{},viewModel)}}}
+ @Test fun `expense ViewModel journey renders the resulting operation`(){compose.onNodeWithText("Aucune opération").assertExists();compose.runOnIdle{viewModel.add(TransactionType.EXPENSE,4_250,"cash",null,"food",null,"Lunch") {}};compose.waitUntil{transactions.saved.isNotEmpty()};val value=transactions.saved.single();assertEquals(TransactionType.EXPENSE,value.type);assertEquals(4_250,value.amount);assertEquals("cash",value.account);assertEquals("food",value.category);compose.onNodeWithText("Food").assertExists()}
+}
+private data class SavedTransaction(val type:TransactionType,val amount:Long,val account:String,val destination:String?,val category:String?)
+private class FakeTransactions:TransactionRepository{val values=MutableStateFlow<List<FinanceTransaction>>(emptyList());val saved=mutableListOf<SavedTransaction>();override fun observeTransactions():Flow<List<FinanceTransaction>> =values;override suspend fun get(id:String)=values.value.firstOrNull{it.id==id};override suspend fun create(type:TransactionType,amountMinor:Long,accountId:String,destinationAccountId:String?,categoryId:String?,description:String,subcategoryId:String?,currencyCode:String,localDate:String?):String{saved+=SavedTransaction(type,amountMinor,accountId,destinationAccountId,categoryId);values.value=listOf(FinanceTransaction("id",type,amountMinor,currencyCode,accountId,"Cash",categoryId=categoryId,categoryCustomName="Food",occurredAt=1));return "id"};override suspend fun update(id:String,type:TransactionType,amountMinor:Long,accountId:String,destinationAccountId:String?,categoryId:String?,description:String,subcategoryId:String?,localDate:String)=Unit;override suspend fun delete(id:String)=Unit}
+private class FakeTransactionAccounts:AccountRepository{override fun observeAccounts()=flowOf(listOf(Account("cash","Cash",AccountType.CASH,"DZD",0,0),Account("bank","Bank",AccountType.BANK,"DZD",0,0)));override fun observeTotals(id:String)=flowOf(AccountOperationTotals());override fun observeHierarchyMetrics(id:String)=flowOf(AccountHierarchyMetrics());override suspend fun create(name:String,type:AccountType,initialBalanceMinor:Long,currencyCode:String,parentAccountId:String?)=Unit;override suspend fun update(id:String,name:String,type:AccountType,iconKey:String,colorKey:String,description:String,displayOrder:Int)=Unit;override suspend fun move(id:String,parentAccountId:String?)=Unit;override suspend fun setArchived(id:String,archived:Boolean)=Unit;override suspend fun reassignOperations(sourceAccountId:String,targetAccountId:String,transactionIds:Set<String>)=Unit;override suspend fun deleteAndReassign(sourceAccountId:String,targetAccountId:String?)=Unit}
+private class FakeTransactionCategories:CategoryRepository{override fun observeCategories(kind:CategoryKind?)=flowOf(listOf(Category("food",CategoryKind.EXPENSE,customName="Food"),Category("salary",CategoryKind.INCOME,customName="Salary")));override fun observeSubcategories()=flowOf(emptyList<Subcategory>());override suspend fun create(name:String,kind:CategoryKind,iconKey:String,colorKey:String)="new";override suspend fun update(id:String,name:String,iconKey:String,colorKey:String)=Unit;override suspend fun createSubcategory(categoryId:String,name:String)="sub";override suspend fun updateSubcategory(id:String,name:String)=Unit;override suspend fun setArchived(id:String,archived:Boolean,replacementId:String?)=Unit;override suspend fun setSubcategoryArchived(id:String,archived:Boolean,replacementId:String?)=Unit;override suspend fun delete(id:String,replacementId:String?)=Unit}
+private class FakeTransactionMedia:MediaRepository{override suspend fun importMedia(sourceUri:String,cropMode:CropMode)=error("unused");override suspend fun attachToAccount(accountId:String,mediaId:String?)=Unit;override suspend fun attachToCategory(categoryId:String,mediaId:String?)=Unit;override suspend fun attachToTransaction(transactionId:String,mediaId:String?)=Unit;override suspend fun mediaFilePath(mediaId:String,thumbnail:Boolean):String?=null}
