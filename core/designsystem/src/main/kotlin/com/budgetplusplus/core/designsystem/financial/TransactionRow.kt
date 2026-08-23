@@ -1,9 +1,11 @@
 package com.budgetplusplus.core.designsystem.financial
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material3.Icon
@@ -13,6 +15,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import com.budgetplusplus.core.designsystem.R
 import com.budgetplusplus.core.designsystem.components.BudgetCategoryIcon
@@ -39,6 +44,7 @@ fun TransactionRow(
     categoryIcon: ImageVector,
     modifier: Modifier = Modifier,
     recurring: Boolean = false,
+    categoryImage: ImageBitmap? = null,
     onClick: (() -> Unit)? = null,
 ) {
     val colors = MaterialTheme.financialColors
@@ -63,7 +69,14 @@ fun TransactionRow(
         onClick = onClick,
         modifier = modifier,
         leadingContent = {
-            BudgetCategoryIcon(
+            if (categoryImage != null) {
+                Image(
+                    bitmap = categoryImage,
+                    contentDescription = category,
+                    modifier = Modifier.size(BudgetSizes.CategoryIcon).clip(CircleShape),
+                    contentScale = ContentScale.Crop,
+                )
+            } else BudgetCategoryIcon(
                 icon = categoryIcon,
                 contentDescription = null,
                 containerColor = containerColor,

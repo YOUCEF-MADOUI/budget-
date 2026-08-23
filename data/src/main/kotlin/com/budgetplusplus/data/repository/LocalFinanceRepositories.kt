@@ -74,11 +74,11 @@ class LocalCategoryRepository @Inject constructor(private val db: BudgetPlusData
         dao.insert(CategoryEntity(id, BudgetPlusDatabase.DEFAULT_WORKSPACE_ID, kind, customName = name.trim(), iconKey = iconKey, colorKey = colorKey, createdAt = now, updatedAt = now))
         return id
     }
-    override suspend fun update(id: String, name: String, iconKey: String, colorKey: String) { require(FinanceValidator.isValidName(name)); require(dao.isSystem(id) == false); dao.update(id, name.trim(), iconKey, colorKey, System.currentTimeMillis()) }
+    override suspend fun update(id: String, name: String, iconKey: String, colorKey: String) { require(FinanceValidator.isValidName(name)); require(dao.kind(id) != null); dao.update(id, name.trim(), iconKey, colorKey, System.currentTimeMillis()) }
     override suspend fun createSubcategory(categoryId: String, name: String): String { require(FinanceValidator.isValidName(name)); require(dao.kind(categoryId) != null); val now = System.currentTimeMillis(); val id = UUID.randomUUID().toString(); dao.insertSubcategory(SubcategoryEntity(id, categoryId, customName = name.trim(), createdAt = now, updatedAt = now)); return id }
     override suspend fun updateSubcategory(id: String, name: String) { require(FinanceValidator.isValidName(name)); require(dao.isSubcategorySystem(id) == false); dao.updateSubcategory(id, name.trim(), System.currentTimeMillis()) }
     override suspend fun setArchived(id: String, archived: Boolean, replacementId: String?) = db.withTransaction {
-        require(dao.isSystem(id) == false); val usage = dao.usageCount(id); val now = System.currentTimeMillis()
+        require(dao.kind(id) != null); val usage = dao.usageCount(id); val now = System.currentTimeMillis()
         if (archived && usage > 0) { require(CategoryReassignmentValidator.categoryReplacementIsValid(id, dao.kind(id), usage, replacementId, replacementId?.let { dao.kind(it) })); dao.reassignCategory(id, requireNotNull(replacementId), now) }
         dao.setArchived(id, archived, now)
     }
@@ -88,7 +88,7 @@ class LocalCategoryRepository @Inject constructor(private val db: BudgetPlusData
         dao.setSubcategoryArchived(id, archived, now)
     }
     override suspend fun delete(id: String, replacementId: String?) = db.withTransaction {
-        require(dao.isSystem(id) == false); val usage = dao.usageCount(id); val now = System.currentTimeMillis()
+        require(dao.kind(id) != null); val usage = dao.usageCount(id); val now = System.currentTimeMillis()
         if (usage > 0) { require(CategoryReassignmentValidator.categoryReplacementIsValid(id, dao.kind(id), usage, replacementId, replacementId?.let { dao.kind(it) })); dao.reassignCategory(id, requireNotNull(replacementId), now) }
         dao.softDelete(id, now)
     }

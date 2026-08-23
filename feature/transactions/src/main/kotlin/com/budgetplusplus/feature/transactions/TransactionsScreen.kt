@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -17,6 +18,7 @@ import com.budgetplusplus.core.designsystem.components.*
 import com.budgetplusplus.core.designsystem.financial.TransactionRow
 import com.budgetplusplus.core.designsystem.financial.TransactionVisualType
 import com.budgetplusplus.core.designsystem.icons.BudgetIcons
+import com.budgetplusplus.core.designsystem.icons.CategoryIconCatalog
 import com.budgetplusplus.core.model.*
 import com.budgetplusplus.domain.repository.*
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,7 +29,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class TransactionsViewModel @Inject constructor(accountsRepository: AccountRepository, categoriesRepository: CategoryRepository, private val repository: TransactionRepository) : ViewModel() {
+class TransactionsViewModel @Inject constructor(accountsRepository: AccountRepository, categoriesRepository: CategoryRepository, private val repository: TransactionRepository, private val mediaRepository: MediaRepository) : ViewModel() {
     val accounts = accountsRepository.observeAccounts().map { it.filterNot(Account::isArchived) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
     val subcategories = categoriesRepository.observeSubcategories().map { values -> values.filterNot(Subcategory::isArchived) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
     val categories = categoriesRepository.observeCategories().map { it.filterNot(Category::isArchived) }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
@@ -39,12 +41,14 @@ class TransactionsViewModel @Inject constructor(accountsRepository: AccountRepos
     }
     fun delete(id: String) = viewModelScope.launch { runCatching { repository.delete(id) }.onSuccess { _hasError.value = false }.onFailure { _hasError.value = true } }
     fun clearError() { _hasError.value = false }
+    suspend fun mediaPath(id: String) = mediaRepository.mediaFilePath(id)
 }
 
 @Composable
 fun TransactionsScreen(onBack: (() -> Unit)?, onAdvancedSearch: () -> Unit, onCreate: () -> Unit, onEdit: (String) -> Unit, onFavorites: () -> Unit, viewModel: TransactionsViewModel = hiltViewModel()) {
     val rows by viewModel.transactions.collectAsStateWithLifecycle()
     val accounts by viewModel.accounts.collectAsStateWithLifecycle()
+    val categories by viewModel.categories.collectAsStateWithLifecycle()
     val hasError by viewModel.hasError.collectAsStateWithLifecycle()
     var selected by remember { mutableStateOf<FinanceTransaction?>(null) }
     var filter by remember { mutableStateOf<TransactionType?>(null) }
@@ -77,6 +81,11 @@ fun TransactionsScreen(onBack: (() -> Unit)?, onAdvancedSearch: () -> Unit, onCr
             items(visibleRows, key = { it.id }) { transaction ->
                 val destinationName = transaction.destinationAccountName
                 val accountLabel = destinationName?.let { stringResource(R.string.transactions_transfer_accounts, transaction.accountName, it) } ?: transaction.accountName
+                val category = categories.firstOrNull { it.id == transaction.categoryId }
+                val mediaPath by produceState<String?>(initialValue = null, transaction.mediaId) {
+                    value = transaction.mediaId?.let { viewModel.mediaPath(it) }
+                }
+                val categoryImage = remember(mediaPath) { mediaPath?.let(android.graphics.BitmapFactory::decodeFile)?.asImageBitmap() }
                 TransactionRow(
                     category = transaction.categoryCustomName ?: transaction.categoryNameKey?.let { transactionCategory(it) } ?: typeLabel(transaction.type),
                     description = transaction.description,
@@ -85,7 +94,8 @@ fun TransactionsScreen(onBack: (() -> Unit)?, onAdvancedSearch: () -> Unit, onCr
                     amountMinor = transaction.amountMinor,
                     currencyCode = transaction.currencyCode,
                     type = visualType(transaction.type),
-                    categoryIcon = BudgetIcons.Category,
+                    categoryIcon = category?.let { CategoryIconCatalog.icon(CategoryIconCatalog.effectiveKey(it.iconKey, it.nameKey)) } ?: BudgetIcons.Category,
+                    categoryImage = categoryImage,
                     onClick = { selected = transaction },
                 )
             }
